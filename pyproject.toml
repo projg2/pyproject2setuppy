@@ -1,0 +1,17 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "pyproject2setuppy"
+author = "Michał Górny"
+author-email = "mgorny@gentoo.org"
+home-page = "https://github.com/mgorny/pyproject2setuppy"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Topic :: System :: Installation/Setup",
+]
