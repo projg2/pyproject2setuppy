@@ -33,3 +33,7 @@ def main():
                 'Build backend {} unknown'.format(backend))
 
     handler(data)
+
+
+if __name__ == '__main__':
+    main()
