@@ -6,6 +6,7 @@
 from setuptools import find_packages, setup
 
 import email.utils
+import os.path
 
 from pyproject2setuppy.common import auto_find_packages
 
@@ -23,12 +24,18 @@ def handle_poetry(data):
     if 'packages' not in metadata:
         package_args = auto_find_packages(metadata['name'])
     else:
-        package_args = {'packages': []}
+        package_args = {'packages': [], 'package_dir': {}}
         for p in metadata['packages']:
             if p.get('format', '') == 'sdist':
                 continue
-            package_args['packages'].extend(find_packages(
-                include=(p['include'], p['include'] + '.*')))
+            subdir = p.get('from', '.')
+            packages = find_packages(subdir,
+                include=(p['include'], p['include'] + '.*'))
+            package_args['packages'].extend(packages)
+            if subdir != '.':
+                for sp in packages:
+                    package_args['package_dir'][sp] = os.path.join(
+                        subdir, sp.replace('.', os.path.sep))
 
     setup(name=metadata['name'],
           version=metadata['version'],

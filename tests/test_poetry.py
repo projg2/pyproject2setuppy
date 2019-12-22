@@ -38,9 +38,12 @@ ARGS_COMMON = {
 def make_package():
     d = tempfile.TemporaryDirectory()
     os.chdir(d.name)
+    os.mkdir('src')
     for subdir in ('test_package', 'other_package', 'nested_package',
                    'nested_package/subpackage',
-                   'nested_package/subpackage/subsub'):
+                   'nested_package/subpackage/subsub',
+                   'src/subdir_package',
+                   'src/subdir_package/sub'):
         os.mkdir(subdir)
         with open('{}/__init__.py'.format(subdir), 'w') as f:
             pass
@@ -99,6 +102,7 @@ packages = [
             mock_setup.assert_called_with(
                     url=None,
                     classifiers=[],
+                    package_dir={},
                     **ARGS_COMMON)
 
     def test_packages_other(self, mock_setup):
@@ -116,6 +120,7 @@ packages = [
                     url=None,
                     classifiers=[],
                     packages=['test_package', 'other_package'],
+                    package_dir={},
                     **args)
 
     def test_packages_other_only(self, mock_setup):
@@ -132,6 +137,7 @@ packages = [
                     url=None,
                     classifiers=[],
                     packages=['other_package'],
+                    package_dir={},
                     **args)
 
     def test_packages_sdist_other(self, mock_setup):
@@ -146,6 +152,7 @@ packages = [
             mock_setup.assert_called_with(
                     url=None,
                     classifiers=[],
+                    package_dir={},
                     **ARGS_COMMON)
 
     def test_packages_wheel(self, mock_setup):
@@ -159,6 +166,7 @@ packages = [
             mock_setup.assert_called_with(
                     url=None,
                     classifiers=[],
+                    package_dir={},
                     **ARGS_COMMON)
 
     def test_packages_nested(self, mock_setup):
@@ -177,4 +185,26 @@ packages = [
                     packages=['nested_package',
                               'nested_package.subpackage',
                               'nested_package.subpackage.subsub'],
+                    package_dir={},
+                    **args)
+
+    def test_packages_subdir(self, mock_setup):
+        metadata = toml.loads(TOML_COMMON + '''
+packages = [
+    { include = "subdir_package", from = "src" },
+]
+''')
+        with make_package():
+            handle_poetry(metadata)
+            args = ARGS_COMMON.copy()
+            del args['packages']
+            mock_setup.assert_called_with(
+                    url=None,
+                    classifiers=[],
+                    packages=['subdir_package',
+                              'subdir_package.sub'],
+                    package_dir={
+                        'subdir_package': 'src/subdir_package',
+                        'subdir_package.sub': 'src/subdir_package/sub',
+                    },
                     **args)
