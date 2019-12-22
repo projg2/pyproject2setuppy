@@ -28,7 +28,7 @@ def handle_poetry(data):
             if p.get('format', '') == 'sdist':
                 continue
             package_args['packages'].extend(find_packages(
-                include=(p['include'],)))
+                include=(p['include'], p['include'] + '.*')))
 
     setup(name=metadata['name'],
           version=metadata['version'],

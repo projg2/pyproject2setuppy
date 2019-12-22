@@ -38,7 +38,9 @@ ARGS_COMMON = {
 def make_package():
     d = tempfile.TemporaryDirectory()
     os.chdir(d.name)
-    for subdir in ('test_package', 'other_package'):
+    for subdir in ('test_package', 'other_package', 'nested_package',
+                   'nested_package/subpackage',
+                   'nested_package/subpackage/subsub'):
         os.mkdir(subdir)
         with open('{}/__init__.py'.format(subdir), 'w') as f:
             pass
@@ -158,3 +160,21 @@ packages = [
                     url=None,
                     classifiers=[],
                     **ARGS_COMMON)
+
+    def test_packages_nested(self, mock_setup):
+        metadata = toml.loads(TOML_COMMON + '''
+packages = [
+    { include = "nested_package" },
+]
+''')
+        with make_package():
+            handle_poetry(metadata)
+            args = ARGS_COMMON.copy()
+            del args['packages']
+            mock_setup.assert_called_with(
+                    url=None,
+                    classifiers=[],
+                    packages=['nested_package',
+                              'nested_package.subpackage',
+                              'nested_package.subpackage.subsub'],
+                    **args)
