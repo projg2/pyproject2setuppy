@@ -3,14 +3,21 @@
 # 2-clause BSD license
 
 import os
-import tempfile
+import sys
 import unittest
+
+if sys.hexversion >= 0x03000000:
+    from tempfile import TemporaryDirectory
+    from unittest.mock import patch
+else:
+    from backports.tempfile import TemporaryDirectory
+    from mock import patch
 
 from pyproject2setuppy.main import main
 
 
 def make_pyproject_toml(data):
-    d = tempfile.TemporaryDirectory()
+    d = TemporaryDirectory()
     os.chdir(d.name)
     with open('pyproject.toml', 'w') as f:
         f.write(data)
@@ -18,7 +25,7 @@ def make_pyproject_toml(data):
 
 
 class MainUnitTest(unittest.TestCase):
-    @unittest.mock.patch('pyproject2setuppy.flit.handle_flit')
+    @patch('pyproject2setuppy.flit.handle_flit')
     def test_flit(self, handler_mock):
         data = '''
 [build-system]
@@ -29,7 +36,7 @@ build-backend = "flit.buildapi"
             main()
             self.assertTrue(handler_mock.called)
 
-    @unittest.mock.patch('pyproject2setuppy.poetry.handle_poetry')
+    @patch('pyproject2setuppy.poetry.handle_poetry')
     def test_poetry(self, handler_mock):
         data = '''
 [build-system]

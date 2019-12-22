@@ -3,10 +3,16 @@
 # 2-clause BSD license
 
 import os
-import tempfile
+import sys
 import toml
 import unittest
-import unittest.mock
+
+if sys.hexversion >= 0x03000000:
+    from tempfile import TemporaryDirectory
+    from unittest.mock import patch
+else:
+    from backports.tempfile import TemporaryDirectory
+    from mock import patch
 
 from pyproject2setuppy.poetry import handle_poetry
 
@@ -36,7 +42,7 @@ ARGS_COMMON = {
 
 
 def make_package():
-    d = tempfile.TemporaryDirectory()
+    d = TemporaryDirectory()
     os.chdir(d.name)
     os.mkdir('src')
     for subdir in ('test_package', 'other_package', 'nested_package',
@@ -50,7 +56,7 @@ def make_package():
     return d
 
 
-@unittest.mock.patch('pyproject2setuppy.poetry.setup')
+@patch('pyproject2setuppy.poetry.setup')
 class PoetryTest(unittest.TestCase):
     def test_basic(self, mock_setup):
         metadata = toml.loads(TOML_COMMON)
