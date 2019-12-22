@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # pyproject2setup.py -- cheap builder for pyproject-based build systems
 # vim:se fileencoding=utf-8 :
 # (c) 2019 Michał Górny
