@@ -3,7 +3,7 @@
 # (c) 2019 Michał Górny
 # 2-clause BSD license
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 import email.utils
 

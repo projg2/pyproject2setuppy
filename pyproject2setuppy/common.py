@@ -17,4 +17,4 @@ def auto_find_packages(modname):
         return {'packages': find_packages(include=(modname,
                                                    '{}.*'.format(modname)))}
     else:
-        return {'py_modules': (modname,)}
+        return {'py_modules': [modname]}

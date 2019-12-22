@@ -24,7 +24,7 @@ def handle_flit(data):
 
     setup(name=modname,
           version=mod.__version__,
-          description=mod.__doc__,
+          description=mod.__doc__.strip(),
           author=metadata['author'],
           author_email=metadata['author-email'],
           url=metadata.get('home-page'),
