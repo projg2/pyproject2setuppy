@@ -2,10 +2,12 @@
 # (c) 2019 Michał Górny
 # 2-clause BSD license
 
+import importlib
 import os
 import os.path
 import sys
 import toml
+import zipfile
 
 from distutils.sysconfig import get_python_lib
 from distutils.util import change_root
@@ -31,6 +33,14 @@ def find_eggs(sitedir):
             if d.endswith('.egg-info'):
                 yield d
         break
+
+
+def zip_find_distinfos(files):
+    for f in files:
+        head, tail = os.path.split(f)
+        if head.endswith('.dist-info'):
+            yield head
+
 
 def make_expected(args):
     for p in args.get('py_modules', []):
@@ -98,3 +108,28 @@ class BuildSystemTestCase(object):
                                     expected['version'],
                                     tag))
                 self.assertEqual(sorted(find_eggs(inst_dir)), [eggname])
+
+    def test_real_build_system(self):
+        metadata = toml.loads(self.toml_base + self.toml_extra)
+        backend_module = metadata['build-system']['build-backend']
+        try:
+            backend = importlib.import_module(backend_module)
+        except ImportError:
+            self.skipTest('Required {} module missing'.format(backend_module))
+
+        with self.make_package() as d:
+            with open('pyproject.toml', 'w') as f:
+                f.write(self.toml_base + self.toml_extra)
+
+            whl = backend.build_wheel(d)
+            with zipfile.ZipFile(whl) as zf:
+                expected = self.expected_base.copy()
+                expected.update(self.expected_extra)
+                pyfiles = [x for x in zf.namelist() if x.endswith('.py')]
+                self.assertEqual(sorted(pyfiles),
+                                 sorted(make_expected(expected)))
+                distinfos = frozenset(zip_find_distinfos(zf.namelist()))
+                distname = '{}-{}.dist-info'.format(expected['name'],
+                                                    expected['version'])
+                self.assertEqual(sorted(distinfos),
+                                 sorted([distname]))
