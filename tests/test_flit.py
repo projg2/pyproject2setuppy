@@ -10,6 +10,10 @@ from tests.base import BuildSystemTestCase
 
 
 class FlitTestCase(BuildSystemTestCase):
+    """
+    Tests for the flit build system.
+    """
+
     toml_base = '''
 [build-system]
 requires = ["flit"]
@@ -37,6 +41,11 @@ author-email = "guy@example.com"
     handler = staticmethod(handle_flit)
 
     def make_package(self):
+        """
+        Make a flit-compatible packags.  Adds docstring and version
+        to the first .py file in package_files.
+        """
+
         d = super(FlitTestCase, self).make_package()
         with open(self.package_files[0], 'w') as f:
             f.write('''
@@ -47,12 +56,20 @@ __version__ = '0'
 
 
 class FlitBasicTest(unittest.TestCase, FlitTestCase):
+    """
+    Test handling a simple flit package.
+    """
+
     expected_extra = {
         'py_modules': ['test_module'],
     }
 
 
 class FlitHomepageTest(unittest.TestCase, FlitTestCase):
+    """
+    Test handling a flit package with homepage.
+    """
+
     toml_extra = '''
 home-page = "https://example.com"
 '''
@@ -64,6 +81,10 @@ home-page = "https://example.com"
 
 
 class FlitClassifiersTest(unittest.TestCase, FlitTestCase):
+    """
+    Test handling a flit package with trove classifiers.
+    """
+
     toml_extra = '''
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -83,6 +104,10 @@ classifiers = [
 
 
 class FlitPackageTest(unittest.TestCase, FlitTestCase):
+    """
+    Test handling a flit package containing a package instead of module.
+    """
+
     package_files = ['test_module/__init__.py']
 
     expected_extra = {
@@ -91,6 +116,10 @@ class FlitPackageTest(unittest.TestCase, FlitTestCase):
 
 
 class FlitNestedPackageTest(unittest.TestCase, FlitTestCase):
+    """
+    Test handling a flit package containing nested packages.
+    """
+
     package_files = [
         'test_module/__init__.py',
         'test_module/sub_module/__init__.py',

@@ -15,7 +15,13 @@ from pyproject2setuppy.common import auto_find_packages
 
 
 class AutoFindPackagesTest(unittest.TestCase):
+    """
+    Test cases for auto_find_packages() function.
+    """
+
     def test_module(self):
+        """ Test finding a plain .py module. """
+
         with TemporaryDirectory() as d:
             os.chdir(d)
             with open('test_module.py', 'w') as f:
@@ -25,6 +31,8 @@ class AutoFindPackagesTest(unittest.TestCase):
                     {'py_modules': ['test_module']})
 
     def test_package(self):
+        """ Test finding a flat package. """
+
         with TemporaryDirectory() as d:
             os.chdir(d)
             os.mkdir('test_package')
@@ -35,6 +43,8 @@ class AutoFindPackagesTest(unittest.TestCase):
                     {'packages': ['test_package']})
 
     def test_package_deep(self):
+        """ Test finding a package with a subpackage. """
+
         with TemporaryDirectory() as d:
             os.chdir(d)
             for subdir in ('test_package', 'test_package/subpackage'):

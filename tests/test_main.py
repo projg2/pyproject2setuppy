@@ -17,6 +17,11 @@ from pyproject2setuppy.main import main
 
 
 def make_pyproject_toml(data):
+    """
+    Create a temporary test directory with pyproject.toml containing
+    specified string data.
+    """
+
     d = TemporaryDirectory()
     os.chdir(d.name)
     with open('pyproject.toml', 'w') as f:
@@ -25,8 +30,16 @@ def make_pyproject_toml(data):
 
 
 class MainUnitTest(unittest.TestCase):
+    """
+    Unit tests for the main() function.
+    """
+
     @patch('pyproject2setuppy.flit.handle_flit')
     def test_flit(self, handler_mock):
+        """
+        Test that flit handler is triggered correctly.
+        """
+
         data = '''
 [build-system]
 requires = ["flit"]
@@ -38,6 +51,10 @@ build-backend = "flit.buildapi"
 
     @patch('pyproject2setuppy.poetry.handle_poetry')
     def test_poetry(self, handler_mock):
+        """
+        Test that poetry handler is triggered correctly.
+        """
+
         data = '''
 [build-system]
 requires = ["poetry"]
@@ -48,6 +65,10 @@ build-backend = "poetry.masonry.api"
             self.assertTrue(handler_mock.called)
 
     def test_garbage(self):
+        """
+        Test that unknown backend results in an exception.
+        """
+
         data = '''
 [build-system]
 build-backend = "pyproject2setuppy.garbage"

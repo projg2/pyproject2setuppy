@@ -12,6 +12,11 @@ from pyproject2setuppy.common import auto_find_packages
 
 
 def handle_poetry(data):
+    """
+    Handle pyproject.toml unserialized into data, using poetry build
+    system.
+    """
+
     metadata = data['tool']['poetry']
 
     authors = []
@@ -48,4 +53,8 @@ def handle_poetry(data):
 
 
 def get_handlers():
+    """
+    Return build-backend mapping for poetry.
+    """
+
     return {'poetry.masonry.api': handle_poetry}

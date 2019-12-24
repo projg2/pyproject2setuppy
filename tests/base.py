@@ -21,6 +21,11 @@ else:
 
 
 def find_all_py(topdir):
+    """
+    Find all .py files in the directory tree starting with topdir,
+    and yield their relative paths.
+    """
+
     for dirpath, dirs, files in os.walk(topdir):
         for f in files:
             if f.endswith('.py'):
@@ -28,6 +33,10 @@ def find_all_py(topdir):
 
 
 def find_eggs(sitedir):
+    """
+    Find all .egg-info directories in sitedir, and return their names.
+    """
+
     for _, dirs, _ in os.walk(sitedir):
         for d in dirs:
             if d.endswith('.egg-info'):
@@ -36,6 +45,10 @@ def find_eggs(sitedir):
 
 
 def zip_find_distinfos(files):
+    """
+    Find all .dist-info directories from zip namelist() passed as files.
+    """
+
     for f in files:
         head, tail = os.path.split(f)
         if head.endswith('.dist-info'):
@@ -43,6 +56,10 @@ def zip_find_distinfos(files):
 
 
 def make_expected(args):
+    """
+    Make a list of expected .py files based on expected setuptools args.
+    """
+
     for p in args.get('py_modules', []):
         yield p + '.py'
     for p in args.get('packages', []):
@@ -50,18 +67,69 @@ def make_expected(args):
 
 
 class BuildSystemTestCase(object):
-    toml_base = ''
-    toml_extra = ''
+    """
+    Base test case for a build system.
+    """
 
-    expected_base = {}
-    expected_extra = {}
+    @property
+    def toml_base(self):
+        """
+        TOML contents as string, defined in the base build system class.
+        """
+        return ''
 
-    package_files = []
+    @property
+    def toml_extra(self):
+        """
+        TOML contents as string, defined in the specific test case.
+        """
+        return ''
 
-    module = ''
-    handler = None
+    @property
+    def expected_base(self):
+        """
+        Expected setup() arguments as dict, defined in the base build
+        system class.
+        """
+        return {}
+
+    @property
+    def expected_extra(self):
+        """
+        Expected setup() arguments as dict, defined in the specifc test
+        case.
+        """
+        return {}
+
+
+    @property
+    def package_files(self):
+        """
+        List of (empty) files to be created in the package directory.
+        """
+        return []
+
+    @property
+    def module(self):
+        """
+        Tested build system module (used by mock).
+        """
+        return ''
+
+    @property
+    def handler(self):
+        """
+        Tested handler function.
+        """
+        return None
 
     def make_package(self):
+        """
+        Make a temporary directory and write tested package files in it.
+        Returns TemporaryDirectory instance (to be used as context
+        manager).
+        """
+
         d = TemporaryDirectory()
         os.chdir(d.name)
         for fn in self.package_files:
@@ -73,6 +141,11 @@ class BuildSystemTestCase(object):
         return d
 
     def test_mocked(self):
+        """
+        Test the handler with mocked setup().  Verifies that correct
+        arguments are passed.
+        """
+
         metadata = toml.loads(self.toml_base + self.toml_extra)
         with patch(self.module + '.setup') as mock_setup:
             with self.make_package():
@@ -82,6 +155,11 @@ class BuildSystemTestCase(object):
                 mock_setup.assert_called_with(**expected)
 
     def test_build(self):
+        """
+        Test the handler with 'setup.py build' command.  Verifies that
+        correct .py files are built.
+        """
+
         metadata = toml.loads(self.toml_base + self.toml_extra)
         sys.argv = ['setup.py', 'build']
         with self.make_package() as d:
@@ -93,6 +171,11 @@ class BuildSystemTestCase(object):
                              sorted(make_expected(expected)))
 
     def test_install(self):
+        """
+        Test the handler with 'setup.py install' command.  Verifies that
+        correct .py files and .egg-info directory are installed.
+        """
+
         metadata = toml.loads(self.toml_base + self.toml_extra)
         with TemporaryDirectory() as dest:
             sys.argv = ['setup.py', 'install', '--root=' + dest]
@@ -110,6 +193,12 @@ class BuildSystemTestCase(object):
                 self.assertEqual(sorted(find_eggs(inst_dir)), [eggname])
 
     def test_real_build_system(self):
+        """
+        Perform a self-test using the upstream build backend.  Builds
+        a wheel, and verifies its contents.  Used to verify that test
+        cases are correct.
+        """
+
         metadata = toml.loads(self.toml_base + self.toml_extra)
         backend_module = metadata['build-system']['build-backend']
         try:

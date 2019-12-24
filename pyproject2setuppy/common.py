@@ -11,7 +11,8 @@ import os.path
 def auto_find_packages(modname):
     """
     Find packages for modname, and supply proper setup() args for them.
-    Supports both packages and modules in correct directory.
+    Supports both packages and modules in correct directory.  Includes
+    all nested subpackages.
     """
     if os.path.isdir(modname):
         return {'packages': find_packages(include=(modname,

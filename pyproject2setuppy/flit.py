@@ -12,6 +12,11 @@ from pyproject2setuppy.common import auto_find_packages
 
 
 def handle_flit(data):
+    """
+    Handle pyproject.toml unserialized into data, using flit build
+    system.
+    """
+
     metadata = data['tool']['flit']['metadata']
     modname = metadata['module']
     sys.path.insert(0, '.')
@@ -33,4 +38,8 @@ def handle_flit(data):
 
 
 def get_handlers():
+    """
+    Return build-backend mapping for flit.
+    """
+
     return {'flit.buildapi': handle_flit}

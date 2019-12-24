@@ -10,6 +10,10 @@ from tests.base import BuildSystemTestCase
 
 
 class PoetryTestCase(BuildSystemTestCase):
+    """
+    Tests for the poetry build system.
+    """
+
     toml_base = '''
 [build-system]
 requires = ["poetry"]
@@ -49,10 +53,18 @@ license = "MIT"
 
 
 class PoetryBasicTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling a simple poetry package.
+    """
+
     pass
 
 
 class PoetryHomepageTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling a poetry package with homepage.
+    """
+
     toml_extra = '''
 homepage = "https://example.com"
 '''
@@ -63,6 +75,10 @@ homepage = "https://example.com"
 
 
 class PoetryClassifiersTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling a poetry package with trove classifiers.
+    """
+
     toml_extra = '''
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -81,6 +97,10 @@ classifiers = [
 
 
 class PoetryPackagesTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling a poetry package with an explicit package list.
+    """
+
     toml_extra = '''
 packages = [
     { include = "test_package" },
@@ -93,6 +113,10 @@ packages = [
 
 
 class PoetryPackagesOtherTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling a poetry package with two packages on the list.
+    """
+
     toml_extra = '''
 packages = [
     { include = "test_package" },
@@ -107,6 +131,11 @@ packages = [
 
 
 class PoetryPackagesOtherOnlyTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling a poetry package with the other package on the list
+    (verifying that autodetection does not trigger).
+    """
+
     toml_extra = '''
 packages = [
     { include = "other_package" },
@@ -120,6 +149,10 @@ packages = [
 
 
 class PoetryPackagesOtherSdistTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test that sdist format skips the package.
+    """
+
     toml_extra = '''
 packages = [
     { include = "test_package" },
@@ -134,6 +167,10 @@ packages = [
 
 
 class PoetryPackagesWheelTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test that wheel format does not skip the package.
+    """
+
     toml_extra = '''
 packages = [
     { include = "test_package", format = "wheel" },
@@ -146,6 +183,10 @@ packages = [
 
 
 class PoetryPackagesNestedTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling nested packages.
+    """
+
     toml_extra = '''
 packages = [
     { include = "nested_package" },
@@ -163,6 +204,10 @@ packages = [
 
 
 class PoetryPackagesSubdirTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling packages in a subdirectory ("from").
+    """
+
     toml_extra = '''
 packages = [
     { include = "subdir_package", from = "src" },

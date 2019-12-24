@@ -16,6 +16,10 @@ MODULES = (
 
 
 def get_handlers():
+    """
+    Get mapping of build-backend values for supported build systems.
+    """
+
     handlers = {}
     for m in MODULES:
         handlers.update(m.get_handlers())
@@ -23,6 +27,11 @@ def get_handlers():
 
 
 def main():
+    """
+    Run setuptools' setup() function for pyproject.toml in the current
+    working directory.
+    """
+
     with open('pyproject.toml') as f:
         data = toml.load(f)
     backend = data['build-system']['build-backend']
