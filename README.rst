@@ -21,6 +21,9 @@ and ``sdist``-related information are not propagated.
 Scripts and entry points are not supported at the moment.  This is
 subject to change in the future.
 
+Unlike the upstream build systems, this package has been tested to work
+correctly both with Python 2.7 and Python 3.4+.
+
 
 Dependencies
 ------------
@@ -28,6 +31,19 @@ The runtime (and build time, if using ``setup.py``) dependencies are:
 
 - toml_ (to read ``pyproject.toml``)
 - setuptools_ (to provide fully-featured ``setup.py`` commands)
+
+
+Testing
+-------
+The package provides unittest-compatible test suite.  However, due
+to setuptools output it is recommended to run them using pytest_::
+
+    $ pytest -vv
+
+Testing on Python 2 requires additional compatibility modules installed:
+
+- backports.tempfile_
+- mock_
 
 
 Installation
@@ -57,3 +73,6 @@ is included in the ``COPYING`` file.
 .. _setuptools: https://github.com/pypa/setuptools
 .. _flit: https://flit.readthedocs.io
 .. _poetry: https://python-poetry.org/
+.. _pytest: https://pytest.org/
+.. _backports.tempfile: https://github.com/PiDelport/backports.tempfile
+.. _mock: https://github.com/testing-cabal/mock
