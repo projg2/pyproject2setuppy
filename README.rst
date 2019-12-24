@@ -22,11 +22,20 @@ Scripts and entry points are not supported at the moment.  This is
 subject to change in the future.
 
 
+Dependencies
+------------
+The runtime (and build time, if using ``setup.py``) dependencies are:
+
+- toml_ (to read ``pyproject.toml``)
+- setuptools_ (to provide fully-featured ``setup.py`` commands)
+
+
 Installation
 ------------
 pyproject2setuppy is using a flit-compliant ``pyproject.toml``.
 It includes ``setup.py`` that uses itself to maintain setuptools
-compatibility.
+compatibility.  Note that the latter does not install package's
+dependencies.
 
 
 Usage

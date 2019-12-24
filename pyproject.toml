@@ -15,3 +15,4 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: System :: Installation/Setup",
 ]
+requires = ["setuptools", "toml"]
