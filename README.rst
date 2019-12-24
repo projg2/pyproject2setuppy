@@ -73,6 +73,7 @@ is included in the ``COPYING`` file.
 .. _setuptools: https://github.com/pypa/setuptools
 .. _flit: https://flit.readthedocs.io
 .. _poetry: https://python-poetry.org/
+.. _toml: https://github.com/uiri/toml
 .. _pytest: https://pytest.org/
 .. _backports.tempfile: https://github.com/PiDelport/backports.tempfile
 .. _mock: https://github.com/testing-cabal/mock
