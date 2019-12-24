@@ -27,17 +27,18 @@ author-email = "guy@example.com"
         'description': 'documentation.',
         'author': 'Some Guy',
         'author_email': 'guy@example.com',
-        'py_modules': ['test_module'],
         'url': None,
         'classifiers': [],
     }
+
+    package_files = ['test_module.py']
 
     module = 'pyproject2setuppy.flit'
     handler = staticmethod(handle_flit)
 
     def make_package(self):
         d = super(FlitTestCase, self).make_package()
-        with open('test_module.py', 'w') as f:
+        with open(self.package_files[0], 'w') as f:
             f.write('''
 """ documentation. """
 __version__ = '0'
@@ -46,7 +47,9 @@ __version__ = '0'
 
 
 class FlitBasicTest(unittest.TestCase, FlitTestCase):
-    pass
+    expected_extra = {
+        'py_modules': ['test_module'],
+    }
 
 
 class FlitHomepageTest(unittest.TestCase, FlitTestCase):
@@ -55,6 +58,7 @@ home-page = "https://example.com"
 '''
 
     expected_extra = {
+        'py_modules': ['test_module'],
         'url': 'https://example.com',
     }
 
@@ -69,9 +73,34 @@ classifiers = [
 '''
 
     expected_extra = {
+        'py_modules': ['test_module'],
         'classifiers': [
             "License :: OSI Approved :: MIT License",
             "Programming Language :: Python :: 2",
             "Programming Language :: Python :: 3"
         ],
+    }
+
+
+class FlitPackageTest(unittest.TestCase, FlitTestCase):
+    package_files = ['test_module/__init__.py']
+
+    expected_extra = {
+        'packages': ['test_module']
+    }
+
+
+class FlitNestedPackageTest(unittest.TestCase, FlitTestCase):
+    package_files = [
+        'test_module/__init__.py',
+        'test_module/sub_module/__init__.py',
+        'test_module/sub_module/subsub/__init__.py',
+    ]
+
+    expected_extra = {
+        'packages': [
+            'test_module',
+            'test_module.sub_module',
+            'test_module.sub_module.subsub',
+        ]
     }
