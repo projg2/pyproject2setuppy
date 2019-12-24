@@ -48,7 +48,6 @@ license = "MIT"
         'src/subdir_package/sub/__init__.py',
     ]
 
-    module = 'pyproject2setuppy.poetry'
     handler = staticmethod(handle_poetry)
 
 

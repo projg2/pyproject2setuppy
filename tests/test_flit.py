@@ -37,7 +37,6 @@ author-email = "guy@example.com"
 
     package_files = ['test_module.py']
 
-    module = 'pyproject2setuppy.flit'
     handler = staticmethod(handle_flit)
 
     def make_package(self):

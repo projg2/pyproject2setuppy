@@ -110,13 +110,6 @@ class BuildSystemTestCase(object):
         return []
 
     @property
-    def module(self):
-        """
-        Tested build system module (used by mock).
-        """
-        return ''
-
-    @property
     def handler(self):
         """
         Tested handler function.
@@ -147,7 +140,7 @@ class BuildSystemTestCase(object):
         """
 
         metadata = toml.loads(self.toml_base + self.toml_extra)
-        with patch(self.module + '.setup') as mock_setup:
+        with patch(self.handler.__module__ + '.setup') as mock_setup:
             with self.make_package():
                 self.handler(metadata)
                 expected = self.expected_base.copy()
