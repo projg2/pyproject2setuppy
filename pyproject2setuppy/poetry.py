@@ -42,6 +42,11 @@ def handle_poetry(data):
                     package_args['package_dir'][sp] = os.path.join(
                         subdir, sp.replace('.', os.path.sep))
 
+    if 'scripts' in metadata:
+        raise NotImplementedError('poetry.scripts not supported yet')
+    if 'plugins' in metadata:
+        raise NotImplementedError('poetry.plugins not supported yet')
+
     setup(name=metadata['name'],
           version=metadata['version'],
           description=metadata['description'],

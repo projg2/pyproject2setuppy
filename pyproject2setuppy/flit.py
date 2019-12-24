@@ -24,6 +24,8 @@ def handle_flit(data):
 
     if 'scripts' in data['tool']['flit']:
         raise NotImplementedError('flit.scripts not supported yet')
+    if 'entrypoints' in data['tool']['flit']:
+        raise NotImplementedError('flit.entrypoints not supported yet')
 
     package_args = auto_find_packages(modname)
 
