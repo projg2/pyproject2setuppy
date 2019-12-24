@@ -7,13 +7,13 @@ import sys
 import unittest
 
 if sys.hexversion >= 0x03000000:
-    from tempfile import TemporaryDirectory
     from unittest.mock import patch
 else:
-    from backports.tempfile import TemporaryDirectory
     from mock import patch
 
 from pyproject2setuppy.main import main
+
+from tests.base import TestDirectory
 
 
 def make_pyproject_toml(data):
@@ -22,8 +22,7 @@ def make_pyproject_toml(data):
     specified string data.
     """
 
-    d = TemporaryDirectory()
-    os.chdir(d.name)
+    d = TestDirectory()
     with open('pyproject.toml', 'w') as f:
         f.write(data)
     return d

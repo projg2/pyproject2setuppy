@@ -66,6 +66,25 @@ def make_expected(args):
         yield os.path.join(p.replace('.', os.path.sep), '__init__.py')
 
 
+class TestDirectory(object):
+    """
+    A thin wrapper over TemporaryDirectory, entering it and leaving
+    via context manager.
+    """
+
+    def __init__(self):
+        self.tempdir = TemporaryDirectory()
+        self.saved_cwd = os.getcwd()
+        os.chdir(self.tempdir.name)
+
+    def __enter__(self):
+        return self.tempdir.__enter__()
+
+    def __exit__(self, *args):
+        os.chdir(self.saved_cwd)
+        return self.tempdir.__exit__(*args)
+
+
 class BuildSystemTestCase(object):
     """
     Base test case for a build system.
@@ -123,8 +142,7 @@ class BuildSystemTestCase(object):
         manager).
         """
 
-        d = TemporaryDirectory()
-        os.chdir(d.name)
+        d = TestDirectory()
         for fn in self.package_files:
             dn = os.path.dirname(fn)
             if dn:
