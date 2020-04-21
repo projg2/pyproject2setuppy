@@ -5,6 +5,8 @@
 
 from setuptools import find_packages, setup
 
+from collections import defaultdict
+
 import email.utils
 import os.path
 
@@ -42,10 +44,19 @@ def handle_poetry(data):
                     package_args['package_dir'][sp] = os.path.join(
                         subdir, sp.replace('.', os.path.sep))
 
+    entry_points = defaultdict(list)
     if 'scripts' in metadata:
-        raise NotImplementedError('poetry.scripts not supported yet')
+        for name, content in metadata['scripts'].items():
+            entry_points['console_scripts'].append(
+                '{} = {}'.format(name, content)
+            )
+
     if 'plugins' in metadata:
-        raise NotImplementedError('poetry.plugins not supported yet')
+        for group_name, group_content in metadata['plugins'].items():
+            for name, path in group_content.items():
+                entry_points[group_name].append(
+                    '{} = {}'.format(name, path)
+                )
 
     setup(name=metadata['name'],
           version=metadata['version'],
@@ -54,6 +65,7 @@ def handle_poetry(data):
           author_email=', '.join(author_emails),
           url=metadata.get('homepage'),
           classifiers=metadata.get('classifiers', []),
+          entry_points=dict(entry_points),
           **package_args)
 
 

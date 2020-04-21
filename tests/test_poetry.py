@@ -36,6 +36,7 @@ license = "MIT"
         'packages': ['test_package'],
         'url': None,
         'classifiers': [],
+        'entry_points': {},
     }
 
     package_files = [
@@ -222,4 +223,67 @@ packages = [
             'subdir_package',
             'subdir_package.sub',
         ],
+    }
+
+
+class PoetryScriptsTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling scripts.
+    """
+
+    toml_extra = '''
+    [tool.poetry.scripts]
+    test-tool = "testlib:main"
+    '''
+
+    expected_extra = {
+        'entry_points': {
+            'console_scripts': [
+                'test-tool = testlib:main',
+            ]
+        }
+    }
+
+
+class PoetryPluginsTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling plugins.
+    """
+
+    toml_extra = '''
+    [tool.poetry.plugins."blogtool.parsers"]
+    ".rst" = "some_module:SomeClass"
+    '''
+
+    expected_extra = {
+        'entry_points': {
+            'blogtool.parsers': [
+                '.rst = some_module:SomeClass',
+            ]
+        }
+    }
+
+
+class PoetryPluginsAndScriptsTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling plugins and scripts.
+    """
+
+    toml_extra = '''
+    [tool.poetry.scripts]
+    test-tool = "testlib:main"
+    
+    [tool.poetry.plugins."blogtool.parsers"]
+    ".rst" = "some_module:SomeClass"
+    '''
+
+    expected_extra = {
+        'entry_points': {
+            'console_scripts': [
+                'test-tool = testlib:main',
+            ],
+            'blogtool.parsers': [
+                '.rst = some_module:SomeClass',
+            ]
+        }
     }
