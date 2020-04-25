@@ -1,6 +1,6 @@
 # pyproject2setup.py -- flit support
 # vim:se fileencoding=utf-8 :
-# (c) 2019 Michał Górny
+# (c) 2019-2020 Michał Górny
 # 2-clause BSD license
 
 from setuptools import setup
@@ -44,4 +44,6 @@ def get_handlers():
     Return build-backend mapping for flit.
     """
 
-    return {'flit.buildapi': handle_flit}
+    return {'flit.buildapi': handle_flit,
+            'flit_core.buildapi': handle_flit,
+            }

@@ -1,5 +1,5 @@
 # vim:se fileencoding=utf-8 :
-# (c) 2019 Michał Górny
+# (c) 2019-2020 Michał Górny
 # 2-clause BSD license
 
 import unittest
@@ -132,3 +132,18 @@ class FlitNestedPackageTest(unittest.TestCase, FlitTestCase):
             'test_module.sub_module.subsub',
         ]
     }
+
+
+class FlitCoreTest(FlitTestCase):
+    """Test for using flit_core backend"""
+
+    toml_base = '''
+[build-system]
+requires = ["flit_core"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.metadata]
+module = "test_module"
+author = "Some Guy"
+author-email = "guy@example.com"
+'''
