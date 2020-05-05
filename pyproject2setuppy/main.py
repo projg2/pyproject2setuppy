@@ -7,11 +7,13 @@ import toml
 
 import pyproject2setuppy.flit
 import pyproject2setuppy.poetry
+import pyproject2setuppy.setuptools
 
 
 MODULES = (
     pyproject2setuppy.flit,
     pyproject2setuppy.poetry,
+    pyproject2setuppy.setuptools,
 )
 
 
