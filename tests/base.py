@@ -172,7 +172,7 @@ class BuildSystemTestCase(object):
         """
 
         metadata = toml.loads(self.toml_base + self.toml_extra)
-        sys.argv = ['setup.py', 'build']
+        sys.argv = ['setup.py', 'build', '--build-lib', 'build/lib']
         with self.make_package() as d:
             self.handler(metadata)
             expected = self.expected_base.copy()
