@@ -3,6 +3,8 @@
 # (c) 2019-2020 Michał Górny
 # 2-clause BSD license
 
+from __future__ import absolute_import
+
 from setuptools import setup
 
 import importlib

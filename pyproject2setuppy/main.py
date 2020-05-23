@@ -1,7 +1,9 @@
 # pyproject2setup.py -- main handler
 # vim:se fileencoding=utf-8 :
-# (c) 2019 Michał Górny
+# (c) 2019-2020 Michał Górny
 # 2-clause BSD license
+
+from __future__ import absolute_import
 
 import toml
 
