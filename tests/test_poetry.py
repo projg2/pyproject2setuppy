@@ -272,7 +272,7 @@ class PoetryPluginsAndScriptsTest(unittest.TestCase, PoetryTestCase):
     toml_extra = '''
     [tool.poetry.scripts]
     test-tool = "testlib:main"
-    
+
     [tool.poetry.plugins."blogtool.parsers"]
     ".rst" = "some_module:SomeClass"
     '''

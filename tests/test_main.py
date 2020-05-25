@@ -1,8 +1,7 @@
 # vim:se fileencoding=utf-8 :
-# (c) 2019 Michał Górny
+# (c) 2019-2020 Michał Górny
 # 2-clause BSD license
 
-import os
 import sys
 import unittest
 

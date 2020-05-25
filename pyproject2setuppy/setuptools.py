@@ -18,7 +18,9 @@ def handle_setuptools(data):
     function.
     """
     if os.path.exists('setup.py'):
-        os.execv(sys.executable, ['pyproject2setuppy', 'setup.py'] + sys.argv[1:])
+        os.execv(
+            sys.executable,
+            ['pyproject2setuppy', 'setup.py'] + sys.argv[1:])
     else:
         from setuptools import setup
         setup()

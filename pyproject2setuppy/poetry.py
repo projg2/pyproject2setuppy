@@ -38,8 +38,8 @@ def handle_poetry(data):
             if p.get('format', '') == 'sdist':
                 continue
             subdir = p.get('from', '.')
-            packages = find_packages(subdir,
-                include=(p['include'], p['include'] + '.*'))
+            packages = find_packages(
+                subdir, include=(p['include'], p['include'] + '.*'))
             package_args['packages'].extend(packages)
             if subdir != '.':
                 for sp in packages:

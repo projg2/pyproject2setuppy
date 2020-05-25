@@ -120,7 +120,6 @@ class BuildSystemTestCase(object):
         """
         return {}
 
-
     @property
     def package_files(self):
         """
