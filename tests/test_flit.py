@@ -33,6 +33,7 @@ author-email = "guy@example.com"
         'author_email': 'guy@example.com',
         'url': None,
         'classifiers': [],
+        'entry_points': {},
     }
 
     package_files = ['test_module.py']
@@ -147,3 +148,63 @@ module = "test_module"
 author = "Some Guy"
 author-email = "guy@example.com"
 '''
+
+
+class FlitScriptsTest(unittest.TestCase, FlitTestCase):
+    """Test handling scripts"""
+
+    toml_extra = '''
+[tool.flit.scripts]
+test-tool = "testlib:main"
+'''
+
+    expected_extra = {
+        'entry_points': {
+            'console_scripts': [
+                'test-tool = testlib:main',
+            ]
+        },
+        'py_modules': ['test_module'],
+    }
+
+
+class FlitEntryPointsTest(unittest.TestCase, FlitTestCase):
+    """Test handling entry points"""
+
+    toml_extra = '''
+[tool.flit.entrypoints."blogtool.parsers"]
+".rst" = "some_module:SomeClass"
+'''
+
+    expected_extra = {
+        'entry_points': {
+            'blogtool.parsers': [
+                '.rst = some_module:SomeClass',
+            ]
+        },
+        'py_modules': ['test_module'],
+    }
+
+
+class FlitPluginsAndScriptsTest(unittest.TestCase, FlitTestCase):
+    """Test handling plugins and scripts"""
+
+    toml_extra = '''
+[tool.flit.scripts]
+test-tool = "testlib:main"
+
+[tool.flit.entrypoints."blogtool.parsers"]
+".rst" = "some_module:SomeClass"
+'''
+
+    expected_extra = {
+        'entry_points': {
+            'console_scripts': [
+                'test-tool = testlib:main',
+            ],
+            'blogtool.parsers': [
+                '.rst = some_module:SomeClass',
+            ]
+        },
+        'py_modules': ['test_module'],
+    }

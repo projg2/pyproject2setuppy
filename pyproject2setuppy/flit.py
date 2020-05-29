@@ -7,6 +7,8 @@ from __future__ import absolute_import
 
 from setuptools import setup
 
+from collections import defaultdict
+
 import importlib
 import sys
 
@@ -19,15 +21,25 @@ def handle_flit(data):
     system.
     """
 
-    metadata = data['tool']['flit']['metadata']
+    topdata = data['tool']['flit']
+    metadata = topdata['metadata']
     modname = metadata['module']
     sys.path.insert(0, '.')
     mod = importlib.import_module(modname, '')
 
-    if 'scripts' in data['tool']['flit']:
-        raise NotImplementedError('flit.scripts not supported yet')
-    if 'entrypoints' in data['tool']['flit']:
-        raise NotImplementedError('flit.entrypoints not supported yet')
+    entry_points = defaultdict(list)
+    if 'scripts' in topdata:
+        for name, content in topdata['scripts'].items():
+            entry_points['console_scripts'].append(
+                '{} = {}'.format(name, content)
+            )
+
+    if 'entrypoints' in topdata:
+        for group_name, group_content in topdata['entrypoints'].items():
+            for name, path in group_content.items():
+                entry_points[group_name].append(
+                    '{} = {}'.format(name, path)
+                )
 
     package_args = auto_find_packages(modname)
 
@@ -38,6 +50,7 @@ def handle_flit(data):
           author_email=metadata['author-email'],
           url=metadata.get('home-page'),
           classifiers=metadata.get('classifiers', []),
+          entry_points=dict(entry_points),
           **package_args)
 
 
