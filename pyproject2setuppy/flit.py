@@ -54,6 +54,24 @@ def handle_flit(data):
           **package_args)
 
 
+def handle_flit_thyself(data):
+    """Handle flit_core.build_thyself backend"""
+    bs = data['build-system']
+    sys.path.insert(0, bs['backend-path'])
+    mod = importlib.import_module(bs['build-backend'], '')
+    metadata = mod.metadata_dict
+    package_args = auto_find_packages(bs['build-backend'].split('.')[0])
+
+    setup(name=mod.metadata.name,
+          version=mod.metadata.version,
+          description=mod.metadata.summary,
+          author=metadata['author'],
+          author_email=metadata['author_email'],
+          url=metadata.get('home_page'),
+          classifiers=metadata.get('classifiers', []),
+          **package_args)
+
+
 def get_handlers():
     """
     Return build-backend mapping for flit.
@@ -61,4 +79,5 @@ def get_handlers():
 
     return {'flit.buildapi': handle_flit,
             'flit_core.buildapi': handle_flit,
+            'flit_core.build_thyself': handle_flit_thyself,
             }

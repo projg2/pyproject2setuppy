@@ -55,17 +55,6 @@ def zip_find_distinfos(files):
             yield head
 
 
-def make_expected(args):
-    """
-    Make a list of expected .py files based on expected setuptools args.
-    """
-
-    for p in args.get('py_modules', []):
-        yield p + '.py'
-    for p in args.get('packages', []):
-        yield os.path.join(p.replace('.', os.path.sep), '__init__.py')
-
-
 class TestDirectory(object):
     """
     A thin wrapper over TemporaryDirectory, entering it and leaving
@@ -134,6 +123,17 @@ class BuildSystemTestCase(object):
         """
         return None
 
+    @staticmethod
+    def make_expected(args):
+        """
+        Make a list of expected .py files based on expected setuptools args.
+        """
+
+        for p in args.get('py_modules', []):
+            yield p + '.py'
+        for p in args.get('packages', []):
+            yield os.path.join(p.replace('.', os.path.sep), '__init__.py')
+
     def make_package(self):
         """
         Make a temporary directory and write tested package files in it.
@@ -144,7 +144,7 @@ class BuildSystemTestCase(object):
         d = TestDirectory()
         for fn in self.package_files:
             dn = os.path.dirname(fn)
-            if dn:
+            if dn and not os.path.isdir(dn):
                 os.makedirs(dn)
             with open(fn, 'w'):
                 pass
@@ -178,7 +178,7 @@ class BuildSystemTestCase(object):
             expected.update(self.expected_extra)
             build_dir = os.path.join(d, 'build', 'lib')
             self.assertEqual(sorted(find_all_py(build_dir)),
-                             sorted(make_expected(expected)))
+                             sorted(self.make_expected(expected)))
 
     def test_install(self):
         """
@@ -195,7 +195,7 @@ class BuildSystemTestCase(object):
                 expected.update(self.expected_extra)
                 inst_dir = change_root(dest, get_python_lib())
                 self.assertEqual(sorted(find_all_py(inst_dir)),
-                                 sorted(make_expected(expected)))
+                                 sorted(self.make_expected(expected)))
                 tag = 'py{}.{}.egg-info'.format(*sys.version_info[:2])
                 eggname = '-'.join((expected['name'],
                                     expected['version'],
@@ -226,7 +226,7 @@ class BuildSystemTestCase(object):
                 expected.update(self.expected_extra)
                 pyfiles = [x for x in zf.namelist() if x.endswith('.py')]
                 self.assertEqual(sorted(pyfiles),
-                                 sorted(make_expected(expected)))
+                                 sorted(self.make_expected(expected)))
                 distinfos = frozenset(zip_find_distinfos(zf.namelist()))
                 distname = '{}-{}.dist-info'.format(expected['name'],
                                                     expected['version'])

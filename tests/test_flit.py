@@ -4,7 +4,7 @@
 
 import unittest
 
-from pyproject2setuppy.flit import handle_flit
+from pyproject2setuppy.flit import handle_flit, handle_flit_thyself
 
 from tests.base import BuildSystemTestCase
 
@@ -208,3 +208,107 @@ test-tool = "testlib:main"
         },
         'py_modules': ['test_module'],
     }
+
+
+class FlitSelfBuildTest(unittest.TestCase, BuildSystemTestCase):
+    """Test for build_thyself backend in flit_core"""
+
+    toml_base = '''
+[build-system]
+requires = []
+build-backend = "fake_flit_core.build_thyself"
+backend-path = "."
+'''
+
+    expected_base = {
+        'name': 'fake_flit_core',
+        'version': '0',
+        'description': 'some text',
+        'author': 'Some Guy',
+        'author_email': 'guy@example.com',
+        'url': 'https://example.com/',
+        'classifiers': [
+            'License :: OSI Approved :: BSD License',
+            'Topic :: Software Development :: Libraries :: Python Modules',
+        ],
+        'packages': [
+            'fake_flit_core',
+        ],
+    }
+
+    handler = staticmethod(handle_flit_thyself)
+
+    package_files = [
+        'fake_flit_core/__init__.py',
+        'fake_flit_core/build_thyself.py',
+    ]
+
+    @classmethod
+    def make_expected(cls, args):
+        return cls.package_files
+
+    def make_package(self):
+        d = super(FlitSelfBuildTest, self).make_package()
+        with open(self.package_files[0], 'w') as f:
+            f.write('''
+""" documentation. """
+__version__ = '0'
+''')
+        with open(self.package_files[1], 'w') as f:
+            f.write('''
+from . import __version__
+
+
+class Metadata(object):
+    """Emulate visible Metadata class behavior"""
+
+    def __init__(self, mdict):
+        self.name = mdict.pop('name')
+        self.version = mdict.pop('version')
+        self.summary = mdict.pop('summary')
+
+
+metadata_dict_orig = {
+    'name': 'fake_flit_core',
+    'version': __version__,
+    'author': 'Some Guy',
+    'author_email': 'guy@example.com',
+    'home_page': 'https://example.com/',
+    'summary': 'some text',
+    'requires_dist': [
+        'pytoml',
+    ],
+    'requires_python': '>=3.4',
+    'classifiers': [
+        "License :: OSI Approved :: BSD License",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ]
+}
+metadata_dict = dict(metadata_dict_orig)
+metadata = Metadata(metadata_dict)
+
+
+def build_wheel(wheel_directory):
+    try:
+        from flit_core.common import Metadata, Module
+        from flit_core.wheel import WheelBuilder
+    except ImportError:
+        import unittest
+        raise unittest.SkipTest('Required flit package missing')
+
+    import os.path
+    from pathlib import Path
+
+    whl_path = os.path.join(wheel_directory, 'test.whl')
+    with open(whl_path, 'w+b') as fp:
+        wb = WheelBuilder(
+            Path.cwd(),
+            Module('fake_flit_core', Path.cwd()),
+            Metadata(metadata_dict_orig),
+            entrypoints={},
+            target_fp=fp
+        )
+        wb.build()
+    return whl_path
+''')
+        return d
