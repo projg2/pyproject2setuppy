@@ -9,6 +9,7 @@ from setuptools import find_packages, setup
 
 from collections import defaultdict
 
+import importlib.util
 import email.utils
 import os.path
 
@@ -59,6 +60,12 @@ def handle_poetry(data):
                 entry_points[group_name].append(
                     '{} = {}'.format(name, path)
                 )
+
+    if 'build' in metadata:
+        spec = importlib.util.spec_from_file_location('build', metadata['build'])
+        build_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(build_module)
+        build_module.build(package_args)
 
     setup(name=metadata['name'],
           version=metadata['version'],
