@@ -34,6 +34,7 @@ author-email = "guy@example.com"
         'url': None,
         'classifiers': [],
         'entry_points': {},
+        'package_data': {'': ['*']},
     }
 
     package_files = ['test_module.py']
@@ -113,6 +114,22 @@ class FlitPackageTest(unittest.TestCase, FlitTestCase):
     expected_extra = {
         'packages': ['test_module']
     }
+
+
+class FlitExtraFilesTest(unittest.TestCase, FlitTestCase):
+    """
+    Test handling a flit package with non-python files.
+    """
+
+    package_files = ['test_module/__init__.py',
+                     'test_module/VERSION']
+
+    expected_extra = {
+        'packages': ['test_module'],
+    }
+    expected_extra_files = [
+        'test_module/VERSION',
+    ]
 
 
 class FlitNestedPackageTest(unittest.TestCase, FlitTestCase):

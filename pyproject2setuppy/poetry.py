@@ -68,6 +68,8 @@ def handle_poetry(data):
           url=metadata.get('homepage'),
           classifiers=metadata.get('classifiers', []),
           entry_points=dict(entry_points),
+          # hack stolen from flit
+          package_data={'': ['*']},
           **package_args)
 
 

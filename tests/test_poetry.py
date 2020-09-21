@@ -37,6 +37,7 @@ license = "MIT"
         'url': None,
         'classifiers': [],
         'entry_points': {},
+        'package_data': {'': ['*']},
     }
 
     package_files = [
@@ -110,6 +111,31 @@ packages = [
     expected_extra = {
         'package_dir': {},
     }
+
+
+class PoetryExtraFilesTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test handling a poetry package with non-Python files inside.
+    """
+
+    toml_extra = '''
+packages = [
+    { include = "test_package" },
+]
+'''
+
+    expected_extra = {
+        'package_dir': {},
+    }
+    expected_extra_files = [
+        'test_package/VERSION',
+    ]
+
+    def make_package(self):
+        d = super(PoetryExtraFilesTest, self).make_package()
+        with open(self.expected_extra_files[0], 'w'):
+            pass
+        return d
 
 
 class PoetryPackagesOtherTest(unittest.TestCase, PoetryTestCase):
