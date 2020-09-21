@@ -20,15 +20,18 @@ else:
     from mock import patch
 
 
-def find_all_py(topdir):
+def find_all_pkg_files(topdir):
     """
-    Find all .py files in the directory tree starting with topdir,
+    Find all package files in the directory tree starting with topdir,
     and yield their relative paths.
     """
 
-    for dirpath, dirs, files in os.walk(topdir):
+    for dirpath, dirs, files in os.walk(topdir, topdown=True):
+        for d in list(dirs):
+            if d.endswith('.egg-info') or d == '__pycache__':
+                dirs.remove(d)
         for f in files:
-            if f.endswith('.py'):
+            if not (f.endswith('.pyc') or f.endswith('.pyo')):
                 yield os.path.relpath(os.path.join(dirpath, f), topdir)
 
 
@@ -110,6 +113,13 @@ class BuildSystemTestCase(object):
         return {}
 
     @property
+    def expected_extra_files(self):
+        """
+        Additional files expected installed as part of the package.
+        """
+        return []
+
+    @property
     def package_files(self):
         """
         List of (empty) files to be created in the package directory.
@@ -123,8 +133,7 @@ class BuildSystemTestCase(object):
         """
         return None
 
-    @staticmethod
-    def make_expected(args):
+    def make_expected(self, args):
         """
         Make a list of expected .py files based on expected setuptools args.
         """
@@ -133,6 +142,8 @@ class BuildSystemTestCase(object):
             yield p + '.py'
         for p in args.get('packages', []):
             yield os.path.join(p.replace('.', os.path.sep), '__init__.py')
+        for f in self.expected_extra_files:
+            yield f
 
     def make_package(self):
         """
@@ -177,7 +188,7 @@ class BuildSystemTestCase(object):
             expected = self.expected_base.copy()
             expected.update(self.expected_extra)
             build_dir = os.path.join(d, 'build', 'lib')
-            self.assertEqual(sorted(find_all_py(build_dir)),
+            self.assertEqual(sorted(find_all_pkg_files(build_dir)),
                              sorted(self.make_expected(expected)))
 
     def test_install(self):
@@ -194,7 +205,7 @@ class BuildSystemTestCase(object):
                 expected = self.expected_base.copy()
                 expected.update(self.expected_extra)
                 inst_dir = change_root(dest, get_python_lib())
-                self.assertEqual(sorted(find_all_py(inst_dir)),
+                self.assertEqual(sorted(find_all_pkg_files(inst_dir)),
                                  sorted(self.make_expected(expected)))
                 tag = 'py{}.{}.egg-info'.format(*sys.version_info[:2])
                 eggname = '-'.join((expected['name'],
@@ -224,8 +235,9 @@ class BuildSystemTestCase(object):
             with zipfile.ZipFile(whl) as zf:
                 expected = self.expected_base.copy()
                 expected.update(self.expected_extra)
-                pyfiles = [x for x in zf.namelist() if x.endswith('.py')]
-                self.assertEqual(sorted(pyfiles),
+                pkg_files = [x for x in zf.namelist()
+                             if not x.split('/')[0].endswith('.dist-info')]
+                self.assertEqual(sorted(pkg_files),
                                  sorted(self.make_expected(expected)))
                 distinfos = frozenset(zip_find_distinfos(zf.namelist()))
                 distname = '{}-{}.dist-info'.format(expected['name'],
