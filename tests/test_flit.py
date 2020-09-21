@@ -296,14 +296,14 @@ def build_wheel(wheel_directory):
         import unittest
         raise unittest.SkipTest('Required flit package missing')
 
-    import os
     import os.path
+    from pathlib import Path
 
     whl_path = os.path.join(wheel_directory, 'test.whl')
     with open(whl_path, 'w+b') as fp:
         wb = WheelBuilder(
-            os.getcwd(),
-            Module('fake_flit_core', os.getcwd()),
+            Path.cwd(),
+            Module('fake_flit_core', Path.cwd()),
             Metadata(metadata_dict_orig),
             entrypoints={},
             target_fp=fp
