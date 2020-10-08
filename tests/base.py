@@ -5,6 +5,7 @@
 import importlib
 import os
 import os.path
+import re
 import sys
 import toml
 import zipfile
@@ -18,6 +19,26 @@ if sys.hexversion >= 0x03000000:
 else:
     from backports.tempfile import TemporaryDirectory
     from mock import patch
+
+
+def normalize_distinfo_name(name):
+    """
+    First the name is canonicalized:
+    https://github.com/python-poetry/poetry-core/blob/1.0.0/poetry/core/packages/specification.py#L19
+    Then escaped:
+    https://www.python.org/dev/peps/pep-0427/#escaping-and-unicode
+    https://github.com/python-poetry/poetry-core/blob/1.0.0/poetry/core/masonry/builders/wheel.py#L223
+    """
+    canonical_name = re.sub('[-_]+', '-', name).lower()
+    return re.sub(r'[^\w\d.]+', '_', canonical_name, re.UNICODE)
+
+
+def normalize_egg_name(name):
+    """
+    Normalize package names to match what setuptool does:
+    https://github.com/pypa/setuptools/blob/v50.3.0/setuptools/_distutils/command/install_egg_info.py#L25
+    """
+    return re.sub('[^A-Za-z0-9.]+', '_', name)
 
 
 def find_all_pkg_files(topdir):
@@ -208,7 +229,7 @@ class BuildSystemTestCase(object):
                 self.assertEqual(sorted(find_all_pkg_files(inst_dir)),
                                  sorted(self.make_expected(expected)))
                 tag = 'py{}.{}.egg-info'.format(*sys.version_info[:2])
-                eggname = '-'.join((expected['name'],
+                eggname = '-'.join((normalize_egg_name(expected['name']),
                                     expected['version'],
                                     tag))
                 self.assertEqual(sorted(find_eggs(inst_dir)), [eggname])
@@ -240,7 +261,8 @@ class BuildSystemTestCase(object):
                 self.assertEqual(sorted(pkg_files),
                                  sorted(self.make_expected(expected)))
                 distinfos = frozenset(zip_find_distinfos(zf.namelist()))
-                distname = '{}-{}.dist-info'.format(expected['name'],
-                                                    expected['version'])
+                distname = '{}-{}.dist-info'.format(
+                        normalize_distinfo_name(expected['name']),
+                        expected['version'])
                 self.assertEqual(sorted(distinfos),
                                  sorted([distname]))

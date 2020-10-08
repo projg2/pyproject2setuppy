@@ -11,8 +11,17 @@ from collections import defaultdict
 
 import email.utils
 import os.path
+import re
 
 from pyproject2setuppy.common import auto_find_packages
+
+
+def normalize_package_name(name):
+    """
+    Normalize project name to package name.
+    https://github.com/python-poetry/poetry-core/blob/1.0.0/poetry/core/utils/helpers.py#L27
+    """
+    return re.sub('[-_]+', '_', name).replace('.', '_').lower()
 
 
 def handle_poetry(data):
@@ -31,7 +40,9 @@ def handle_poetry(data):
         author_emails.append(addr)
 
     if 'packages' not in metadata:
-        package_args = auto_find_packages(metadata['name'])
+        package_args = auto_find_packages(
+                normalize_package_name(metadata['name'])
+        )
     else:
         package_args = {'packages': [], 'package_dir': {}}
         for p in metadata['packages']:

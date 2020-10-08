@@ -44,6 +44,7 @@ license = "MIT"
         'test_package/__init__.py',
         'other_package/__init__.py',
         'nested_package/__init__.py',
+        'test_special_chars_package/__init__.py',
         'nested_package/subpackage/__init__.py',
         'nested_package/subpackage/subsub/__init__.py',
         'src/subdir_package/__init__.py',
@@ -313,3 +314,16 @@ class PoetryPluginsAndScriptsTest(unittest.TestCase, PoetryTestCase):
             ]
         }
     }
+
+
+class PoetryNormalizedProjectNameTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test normalizing package names.
+    """
+    def setUp(self):
+        self.expected_base['name'] = 'Test__special.chars--package'
+        self.toml_base = self.toml_base.replace(
+                'name = "test_package"',
+                'name = "{}"'.format(self.expected_base['name'])
+        )
+        self.expected_base['packages'] = ['test_special_chars_package']
