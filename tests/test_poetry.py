@@ -313,3 +313,20 @@ class PoetryPluginsAndScriptsTest(unittest.TestCase, PoetryTestCase):
             ]
         }
     }
+
+
+class PoetryCoreTest(unittest.TestCase, PoetryTestCase):
+    """Test for using poetry-core backend"""
+
+    toml_base = '''
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "test_package"
+version = "0"
+description = "description."
+authors = ["Some Guy <guy@example.com>"]
+license = "MIT"
+'''

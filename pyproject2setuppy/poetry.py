@@ -78,4 +78,6 @@ def get_handlers():
     Return build-backend mapping for poetry.
     """
 
-    return {'poetry.masonry.api': handle_poetry}
+    return {'poetry.masonry.api': handle_poetry,
+            'poetry.core.masonry.api': handle_poetry,
+            }

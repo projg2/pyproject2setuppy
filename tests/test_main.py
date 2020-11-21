@@ -77,6 +77,21 @@ build-backend = "poetry.masonry.api"
             main()
             self.assertTrue(handler_mock.called)
 
+    @patch('pyproject2setuppy.poetry.handle_poetry')
+    def test_poetry_core(self, handler_mock):
+        """
+        Test that poetry.core handler is triggered correctly.
+        """
+
+        data = '''
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+'''
+        with make_pyproject_toml(data):
+            main()
+            self.assertTrue(handler_mock.called)
+
     @patch('pyproject2setuppy.setuptools.handle_setuptools')
     def test_setuptools(self, handler_mock):
         """
