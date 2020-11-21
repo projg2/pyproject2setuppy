@@ -47,6 +47,21 @@ build-backend = "flit.buildapi"
             main()
             self.assertTrue(handler_mock.called)
 
+    @patch('pyproject2setuppy.flit.handle_flit')
+    def test_flit_core(self, handler_mock):
+        """
+        Test that flit-core handler is triggered correctly.
+        """
+
+        data = '''
+[build-system]
+requires = ["flit_core"]
+build-backend = "flit_core.buildapi"
+'''
+        with make_pyproject_toml(data):
+            main()
+            self.assertTrue(handler_mock.called)
+
     @patch('pyproject2setuppy.poetry.handle_poetry')
     def test_poetry(self, handler_mock):
         """
@@ -57,6 +72,21 @@ build-backend = "flit.buildapi"
 [build-system]
 requires = ["poetry"]
 build-backend = "poetry.masonry.api"
+'''
+        with make_pyproject_toml(data):
+            main()
+            self.assertTrue(handler_mock.called)
+
+    @patch('pyproject2setuppy.setuptools.handle_setuptools')
+    def test_setuptools(self, handler_mock):
+        """
+        Test that the setuptools handler is triggered correctly.
+        """
+
+        data = '''
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 '''
         with make_pyproject_toml(data):
             main()
