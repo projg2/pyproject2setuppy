@@ -6,6 +6,7 @@
 from __future__ import absolute_import
 
 import os
+import subprocess
 import sys
 
 
@@ -18,9 +19,10 @@ def handle_setuptools(data):
     function.
     """
     if os.path.exists('setup.py'):
-        os.execv(
-            sys.executable,
-            ['pyproject2setuppy', 'setup.py'] + sys.argv[1:])
+        ret = (subprocess.Popen([sys.executable, 'setup.py'] + sys.argv[1:])
+               .wait())
+        if ret != 0:
+            sys.exit(ret)
     else:
         from setuptools import setup
         setup()
