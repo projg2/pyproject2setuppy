@@ -8,5 +8,8 @@ from __future__ import absolute_import
 from pyproject2setuppy.__main__ import get_handlers, main
 
 
+__all__ = [get_handlers, main]
+
+
 if __name__ == '__main__':
     main()
