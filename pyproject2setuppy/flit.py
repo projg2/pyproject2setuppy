@@ -59,7 +59,10 @@ def handle_flit(data):
 def handle_flit_thyself(data):
     """Handle flit_core.build_thyself backend"""
     bs = data['build-system']
-    sys.path.insert(0, bs['backend-path'])
+    backend_path = bs['backend-path']
+    if not isinstance(backend_path, list):
+        backend_path = [backend_path]
+    sys.path = backend_path + sys.path
     mod = importlib.import_module(bs['build-backend'], '')
     metadata = mod.metadata_dict
     package_args = auto_find_packages(bs['build-backend'].split('.')[0])

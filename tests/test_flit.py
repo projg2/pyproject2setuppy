@@ -329,3 +329,14 @@ def build_wheel(wheel_directory):
     return whl_path
 ''')
         return d
+
+
+class Flit3SelfBuildTest(FlitSelfBuildTest):
+    """Test for build_thyself backend in flit_core-3"""
+
+    toml_base = '''
+[build-system]
+requires = []
+build-backend = "fake_flit_core.build_thyself"
+backend-path = ["."]
+'''
