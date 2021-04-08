@@ -1,6 +1,6 @@
 # pyproject2setup.py -- poetry support
 # vim:se fileencoding=utf-8 :
-# (c) 2019-2020 Michał Górny
+# (c) 2019-2021 Michał Górny
 # 2-clause BSD license
 
 from __future__ import absolute_import
@@ -11,6 +11,7 @@ from collections import defaultdict
 
 import email.utils
 import os.path
+import re
 
 from pyproject2setuppy.common import auto_find_packages
 
@@ -31,7 +32,9 @@ def handle_poetry(data):
         author_emails.append(addr)
 
     if 'packages' not in metadata:
-        package_args = auto_find_packages(metadata['name'])
+        # canonicalize the name
+        canonical_name = re.sub(r'[-.]', '_', metadata['name'].lower())
+        package_args = auto_find_packages(canonical_name)
     else:
         package_args = {'packages': [], 'package_dir': {}}
         for p in metadata['packages']:

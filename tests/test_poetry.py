@@ -1,5 +1,5 @@
 # vim:se fileencoding=utf-8 :
-# (c) 2019 Michał Górny
+# (c) 2019-2021 Michał Górny
 # 2-clause BSD license
 
 import unittest
@@ -312,6 +312,38 @@ class PoetryPluginsAndScriptsTest(unittest.TestCase, PoetryTestCase):
                 '.rst = some_module:SomeClass',
             ]
         }
+    }
+
+
+class PoetryNonCanonicalTestCase(unittest.TestCase, PoetryTestCase):
+    """
+    Test a package with module name needing canonicalization.
+    """
+
+    toml_base = '''
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "test-package"
+version = "0"
+description = "description."
+authors = ["Some Guy <guy@example.com>"]
+license = "MIT"
+'''
+
+    expected_base = {
+        'name': 'test-package',
+        'version': '0',
+        'description': 'description.',
+        'author': 'Some Guy',
+        'author_email': 'guy@example.com',
+        'packages': ['test_package'],
+        'url': None,
+        'classifiers': [],
+        'entry_points': {},
+        'package_data': {'': ['*']},
     }
 
 

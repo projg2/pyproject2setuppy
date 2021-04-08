@@ -1,10 +1,11 @@
 # vim:se fileencoding=utf-8 :
-# (c) 2019 Michał Górny
+# (c) 2019-2021 Michał Górny
 # 2-clause BSD license
 
 import importlib
 import os
 import os.path
+import re
 import sys
 import toml
 import zipfile
@@ -67,6 +68,11 @@ def zip_find_distinfos(files):
         head, tail = os.path.split(f)
         if head.endswith('.dist-info'):
             yield head
+
+
+def escape_distinfo_name(name):
+    """Escape dist-info filename per PEP427"""
+    return re.sub(r'[^\w\d.]+', '_', name)
 
 
 class TestDirectory(object):
@@ -222,9 +228,10 @@ class BuildSystemTestCase(object):
                     self.assertEqual(sorted(find_all_pkg_files(inst_dir)),
                                      sorted(self.make_expected(expected)))
                     tag = 'py{}.{}.egg-info'.format(*sys.version_info[:2])
-                    eggname = '-'.join((expected['name'],
-                                        expected['version'],
-                                        tag))
+                    eggname = '-'.join(
+                        (escape_distinfo_name(expected['name']),
+                         expected['version'],
+                         tag))
                     self.assertEqual(sorted(find_eggs(inst_dir)), [eggname])
 
     def test_real_build_system(self):
@@ -254,7 +261,8 @@ class BuildSystemTestCase(object):
                 self.assertEqual(sorted(pkg_files),
                                  sorted(self.make_expected(expected)))
                 distinfos = frozenset(zip_find_distinfos(zf.namelist()))
-                distname = '{}-{}.dist-info'.format(expected['name'],
-                                                    expected['version'])
+                distname = '{}-{}.dist-info'.format(
+                    escape_distinfo_name(expected['name']),
+                    expected['version'])
                 self.assertEqual(sorted(distinfos),
                                  sorted([distname]))
