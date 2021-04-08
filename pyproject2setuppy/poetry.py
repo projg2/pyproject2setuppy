@@ -34,7 +34,10 @@ def handle_poetry(data):
     if 'packages' not in metadata:
         # canonicalize the name
         canonical_name = re.sub(r'[-.]', '_', metadata['name'].lower())
-        package_args = auto_find_packages(canonical_name)
+        try:
+            package_args = auto_find_packages(canonical_name)
+        except RuntimeError:
+            package_args = auto_find_packages(canonical_name, 'src')
     else:
         package_args = {'packages': [], 'package_dir': {}}
         for p in metadata['packages']:

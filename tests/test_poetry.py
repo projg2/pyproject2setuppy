@@ -252,6 +252,36 @@ packages = [
     }
 
 
+class PoetrySubdirTest(unittest.TestCase, PoetryTestCase):
+    """
+    Test implicit "src" subdirectory search.
+    """
+
+    toml_base = '''
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "subdir_package"
+version = "0"
+description = "description."
+authors = ["Some Guy <guy@example.com>"]
+license = "MIT"
+'''
+
+    expected_extra = {
+        'name': 'subdir_package',
+        'package_dir': {
+            '': 'src',
+        },
+        'packages': [
+            'subdir_package',
+            'subdir_package.sub',
+        ],
+    }
+
+
 class PoetryScriptsTest(unittest.TestCase, PoetryTestCase):
     """
     Test handling scripts.

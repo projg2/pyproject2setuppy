@@ -10,14 +10,22 @@ from setuptools import find_packages
 import os.path
 
 
-def auto_find_packages(modname):
+def auto_find_packages(modname, subdir='.'):
     """
     Find packages for modname, and supply proper setup() args for them.
     Supports both packages and modules in correct directory.  Includes
     all nested subpackages.
     """
-    if os.path.isdir(modname):
-        return {'packages': find_packages(include=(modname,
-                                                   '{}.*'.format(modname)))}
+    retdict = {}
+    if subdir != '.':
+        retdict['package_dir'] = {'': subdir}
+    if os.path.isdir(os.path.join(subdir, modname)):
+        retdict.update(
+            {'packages': find_packages(where=subdir,
+                                       include=(modname,
+                                                '{}.*'.format(modname)))})
+    elif os.path.isfile(os.path.join(subdir, modname + '.py')):
+        retdict.update({'py_modules': [modname]})
     else:
-        return {'py_modules': [modname]}
+        raise RuntimeError('No package matching {} found'.format(modname))
+    return retdict
