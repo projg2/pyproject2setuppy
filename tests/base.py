@@ -21,17 +21,6 @@ else:
     from mock import patch
 
 
-class save_sys(object):
-    """Save sys.argv, sys.path to avoid leaking past test"""
-    def __enter__(self):
-        self.saved_argv = list(sys.argv)
-        self.saved_path = list(sys.path)
-
-    def __exit__(self, exc_type, exc_value, exc_tb):
-        sys.argv = self.saved_argv
-        sys.path = self.saved_path
-
-
 def find_all_pkg_files(topdir):
     """
     Find all package files in the directory tree starting with topdir,
@@ -184,14 +173,13 @@ class BuildSystemTestCase(object):
         arguments are passed.
         """
 
-        with save_sys():
-            metadata = toml.loads(self.toml_base + self.toml_extra)
-            with patch(self.handler.__module__ + '.setup') as mock_setup:
-                with self.make_package():
-                    self.handler(metadata)
-                    expected = self.expected_base.copy()
-                    expected.update(self.expected_extra)
-                    mock_setup.assert_called_with(**expected)
+        metadata = toml.loads(self.toml_base + self.toml_extra)
+        with patch(self.handler.__module__ + '.setup') as mock_setup:
+            with self.make_package():
+                self.handler(metadata)
+                expected = self.expected_base.copy()
+                expected.update(self.expected_extra)
+                mock_setup.assert_called_with(**expected)
 
     def test_build(self):
         """
@@ -199,16 +187,15 @@ class BuildSystemTestCase(object):
         correct .py files are built.
         """
 
-        with save_sys():
-            metadata = toml.loads(self.toml_base + self.toml_extra)
-            sys.argv = ['setup.py', 'build', '--build-lib', 'build/lib']
-            with self.make_package() as d:
-                self.handler(metadata)
-                expected = self.expected_base.copy()
-                expected.update(self.expected_extra)
-                build_dir = os.path.join(d, 'build', 'lib')
-                self.assertEqual(sorted(find_all_pkg_files(build_dir)),
-                                 sorted(self.make_expected(expected)))
+        metadata = toml.loads(self.toml_base + self.toml_extra)
+        sys.argv = ['setup.py', 'build', '--build-lib', 'build/lib']
+        with self.make_package() as d:
+            self.handler(metadata)
+            expected = self.expected_base.copy()
+            expected.update(self.expected_extra)
+            build_dir = os.path.join(d, 'build', 'lib')
+            self.assertEqual(sorted(find_all_pkg_files(build_dir)),
+                             sorted(self.make_expected(expected)))
 
     def test_install(self):
         """
@@ -216,23 +203,22 @@ class BuildSystemTestCase(object):
         correct .py files and .egg-info directory are installed.
         """
 
-        with save_sys():
-            metadata = toml.loads(self.toml_base + self.toml_extra)
-            with TemporaryDirectory() as dest:
-                sys.argv = ['setup.py', 'install', '--root=' + dest]
-                with self.make_package():
-                    self.handler(metadata)
-                    expected = self.expected_base.copy()
-                    expected.update(self.expected_extra)
-                    inst_dir = change_root(dest, get_python_lib())
-                    self.assertEqual(sorted(find_all_pkg_files(inst_dir)),
-                                     sorted(self.make_expected(expected)))
-                    tag = 'py{}.{}.egg-info'.format(*sys.version_info[:2])
-                    eggname = '-'.join(
-                        (escape_distinfo_name(expected['name']),
-                         expected['version'],
-                         tag))
-                    self.assertEqual(sorted(find_eggs(inst_dir)), [eggname])
+        metadata = toml.loads(self.toml_base + self.toml_extra)
+        with TemporaryDirectory() as dest:
+            sys.argv = ['setup.py', 'install', '--root=' + dest]
+            with self.make_package():
+                self.handler(metadata)
+                expected = self.expected_base.copy()
+                expected.update(self.expected_extra)
+                inst_dir = change_root(dest, get_python_lib())
+                self.assertEqual(sorted(find_all_pkg_files(inst_dir)),
+                                 sorted(self.make_expected(expected)))
+                tag = 'py{}.{}.egg-info'.format(*sys.version_info[:2])
+                eggname = '-'.join(
+                    (escape_distinfo_name(expected['name']),
+                     expected['version'],
+                     tag))
+                self.assertEqual(sorted(find_eggs(inst_dir)), [eggname])
 
     def test_real_build_system(self):
         """
