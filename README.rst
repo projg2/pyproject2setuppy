@@ -37,9 +37,9 @@ Testing
 -------
 The package provides unittest-compatible test suite.  However, due
 to environment pollution testing needs to happen in subprocesses, e.g.
-using pytest-forked_::
+using pytest_ with pytest-forked_ plugin::
 
-    $ pytest -vv --forked
+    $ pytest -vv
 
 Testing on Python 2 requires additional compatibility modules installed:
 
@@ -75,6 +75,7 @@ is included in the ``COPYING`` file.
 .. _flit: https://flit.readthedocs.io
 .. _poetry: https://python-poetry.org/
 .. _toml: https://github.com/uiri/toml
+.. _pytest: https://pytest.org/
 .. _pytest-forked: https://github.com/pytest-dev/pytest-forked/
 .. _backports.tempfile: https://github.com/PiDelport/backports.tempfile
 .. _mock: https://github.com/testing-cabal/mock
