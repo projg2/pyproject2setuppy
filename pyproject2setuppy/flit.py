@@ -1,6 +1,6 @@
 # pyproject2setup.py -- flit support
 # vim:se fileencoding=utf-8 :
-# (c) 2019-2020 Michał Górny
+# (c) 2019-2021 Michał Górny
 # 2-clause BSD license
 
 from __future__ import absolute_import
@@ -13,6 +13,7 @@ import importlib
 import sys
 
 from pyproject2setuppy.common import auto_find_packages
+from pyproject2setuppy.pep621 import get_pep621_metadata
 
 
 def handle_flit(data):
@@ -21,39 +22,57 @@ def handle_flit(data):
     system.
     """
 
-    topdata = data['tool']['flit']
-    metadata = topdata['metadata']
-    modname = metadata['module']
-    sys.path.insert(0, '.')
-    mod = importlib.import_module(modname, '')
+    # try PEP 621 first
+    setup_metadata = get_pep621_metadata(data, ['version', 'description'])
+    if setup_metadata is not None:
+        if 'flit' in data.get('tool', {}):
+            raise ValueError('[project] and [tool.flit] cannot be present '
+                             'simultaneously')
+    else:
+        # tool.flit fallback
+        topdata = data['tool']['flit']
+        metadata = topdata['metadata']
 
-    entry_points = defaultdict(list)
-    if 'scripts' in topdata:
-        for name, content in topdata['scripts'].items():
-            entry_points['console_scripts'].append(
-                '{} = {}'.format(name, content)
-            )
-
-    if 'entrypoints' in topdata:
-        for group_name, group_content in topdata['entrypoints'].items():
-            for name, path in group_content.items():
-                entry_points[group_name].append(
-                    '{} = {}'.format(name, path)
+        entry_points = defaultdict(list)
+        if 'scripts' in topdata:
+            for name, content in topdata['scripts'].items():
+                entry_points['console_scripts'].append(
+                    '{} = {}'.format(name, content)
                 )
 
-    package_args = auto_find_packages(modname)
+        if 'entrypoints' in topdata:
+            for group_name, group_content in topdata['entrypoints'].items():
+                for name, path in group_content.items():
+                    entry_points[group_name].append(
+                        '{} = {}'.format(name, path)
+                    )
 
-    setup(name=modname,
-          version=mod.__version__,
-          description=mod.__doc__.strip(),
-          author=metadata['author'],
-          author_email=metadata['author-email'],
-          url=metadata.get('home-page'),
-          classifiers=metadata.get('classifiers', []),
-          entry_points=dict(entry_points),
-          # hack stolen from flit
-          package_data={'': ['*']},
-          **package_args)
+        setup_metadata = {
+            'name': metadata['module'],
+            # use None to match PEP 621 return value for dynamic
+            'version': None,
+            'description': None,
+            'author': metadata['author'],
+            'author_email': metadata['author-email'],
+            'url': metadata.get('home-page'),
+            'classifiers': metadata.get('classifiers', []),
+            'entry_points': dict(entry_points),
+        }
+
+    # handle dynamic metadata if necessary
+    modname = setup_metadata['name']
+    if None in [setup_metadata[x] for x in ('version', 'description')]:
+        sys.path.insert(0, '.')
+        mod = importlib.import_module(modname, '')
+        if setup_metadata['version'] is None:
+            setup_metadata['version'] = mod.__version__
+        if setup_metadata['description'] is None:
+            setup_metadata['description'] = mod.__doc__.strip()
+
+    setup_metadata.update(auto_find_packages(modname))
+
+    setup(package_data={'': ['*']},  # hack stolen from flit
+          **setup_metadata)
 
 
 def handle_flit_thyself(data):
