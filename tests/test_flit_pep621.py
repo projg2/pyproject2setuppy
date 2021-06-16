@@ -4,7 +4,7 @@
 
 import unittest
 
-from pyproject2setuppy.flit import handle_flit, handle_flit_thyself
+from pyproject2setuppy.flit import handle_flit
 
 from tests.base import BuildSystemTestCase
 
