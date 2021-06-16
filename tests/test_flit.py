@@ -66,6 +66,30 @@ class FlitBasicTest(unittest.TestCase, FlitTestCase):
     }
 
 
+class FlitMultilineDescTest(unittest.TestCase, FlitTestCase):
+    """
+    Test for a package with multiline description.
+    """
+
+    def make_package(self):
+        d = super(FlitMultilineDescTest, self).make_package()
+        with open(self.package_files[0], 'w') as f:
+            f.write('''
+"""
+documentation that
+spans multiple
+lines.
+"""
+__version__ = '0'
+''')
+        return d
+
+    expected_extra = {
+        'description': 'documentation that spans multiple lines.',
+        'py_modules': ['test_module'],
+    }
+
+
 class FlitHomepageTest(unittest.TestCase, FlitTestCase):
     """
     Test handling a flit package with homepage.

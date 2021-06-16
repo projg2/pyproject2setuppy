@@ -67,7 +67,9 @@ def handle_flit(data):
         if setup_metadata['version'] is None:
             setup_metadata['version'] = mod.__version__
         if setup_metadata['description'] is None:
-            setup_metadata['description'] = mod.__doc__.strip()
+            # setuptools doesn't like multiple lines in description
+            setup_metadata['description'] = (
+                ' '.join(mod.__doc__.strip().splitlines()))
 
     setup_metadata.update(auto_find_packages(modname))
 
