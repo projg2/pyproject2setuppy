@@ -139,6 +139,13 @@ class BuildSystemTestCase(object):
         """
         return None
 
+    @property
+    def expect_exception(self):
+        """
+        If set to non-None, expect the specified exception type.
+        """
+        return None
+
     def make_expected(self, args):
         """
         Make a list of expected .py files based on expected setuptools args.
@@ -167,6 +174,20 @@ class BuildSystemTestCase(object):
                 pass
         return d
 
+    def run_handler(self, metadata):
+        """
+        Run the handler, optionally expecting an exception.
+        Returns True if the handler run successfully, False if we were
+        expecting an exception.
+        """
+        if self.expect_exception is not None:
+            with self.assertRaises(self.expect_exception):
+                self.handler(metadata)
+            return False
+
+        self.handler(metadata)
+        return True
+
     def test_mocked(self):
         """
         Test the handler with mocked setup().  Verifies that correct
@@ -176,10 +197,10 @@ class BuildSystemTestCase(object):
         metadata = toml.loads(self.toml_base + self.toml_extra)
         with patch(self.handler.__module__ + '.setup') as mock_setup:
             with self.make_package():
-                self.handler(metadata)
-                expected = self.expected_base.copy()
-                expected.update(self.expected_extra)
-                mock_setup.assert_called_with(**expected)
+                if self.run_handler(metadata):
+                    expected = self.expected_base.copy()
+                    expected.update(self.expected_extra)
+                    mock_setup.assert_called_with(**expected)
 
     def test_build(self):
         """
@@ -190,12 +211,12 @@ class BuildSystemTestCase(object):
         metadata = toml.loads(self.toml_base + self.toml_extra)
         sys.argv = ['setup.py', 'build', '--build-lib', 'build/lib']
         with self.make_package() as d:
-            self.handler(metadata)
-            expected = self.expected_base.copy()
-            expected.update(self.expected_extra)
-            build_dir = os.path.join(d, 'build', 'lib')
-            self.assertEqual(sorted(find_all_pkg_files(build_dir)),
-                             sorted(self.make_expected(expected)))
+            if self.run_handler(metadata):
+                expected = self.expected_base.copy()
+                expected.update(self.expected_extra)
+                build_dir = os.path.join(d, 'build', 'lib')
+                self.assertEqual(sorted(find_all_pkg_files(build_dir)),
+                                 sorted(self.make_expected(expected)))
 
     def test_install(self):
         """
@@ -207,18 +228,18 @@ class BuildSystemTestCase(object):
         with TemporaryDirectory() as dest:
             sys.argv = ['setup.py', 'install', '--root=' + dest]
             with self.make_package():
-                self.handler(metadata)
-                expected = self.expected_base.copy()
-                expected.update(self.expected_extra)
-                inst_dir = change_root(dest, get_python_lib())
-                self.assertEqual(sorted(find_all_pkg_files(inst_dir)),
-                                 sorted(self.make_expected(expected)))
-                tag = 'py{}.{}.egg-info'.format(*sys.version_info[:2])
-                eggname = '-'.join(
-                    (escape_distinfo_name(expected['name']),
-                     expected['version'],
-                     tag))
-                self.assertEqual(sorted(find_eggs(inst_dir)), [eggname])
+                if self.run_handler(metadata):
+                    expected = self.expected_base.copy()
+                    expected.update(self.expected_extra)
+                    inst_dir = change_root(dest, get_python_lib())
+                    self.assertEqual(sorted(find_all_pkg_files(inst_dir)),
+                                     sorted(self.make_expected(expected)))
+                    tag = 'py{}.{}.egg-info'.format(*sys.version_info[:2])
+                    eggname = '-'.join(
+                        (escape_distinfo_name(expected['name']),
+                         expected['version'],
+                         tag))
+                    self.assertEqual(sorted(find_eggs(inst_dir)), [eggname])
 
     def test_real_build_system(self):
         """
@@ -238,6 +259,11 @@ class BuildSystemTestCase(object):
             with open('pyproject.toml', 'w') as f:
                 f.write(self.toml_base + self.toml_extra)
 
+            if self.expect_exception is not None:
+                # upstream build system uses different exception classes
+                with self.assertRaises(Exception):
+                    backend.build_wheel(d)
+                return
             whl = backend.build_wheel(d)
             with zipfile.ZipFile(whl) as zf:
                 expected = self.expected_base.copy()

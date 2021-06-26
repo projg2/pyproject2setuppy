@@ -25,9 +25,9 @@ def handle_flit(data):
     # try PEP 621 first
     setup_metadata = get_pep621_metadata(data, ['version', 'description'])
     if setup_metadata is not None:
-        if 'flit' in data.get('tool', {}):
-            raise ValueError('[project] and [tool.flit] cannot be present '
-                             'simultaneously')
+        if 'metadata' in data.get('tool', {}).get('flit', {}):
+            raise ValueError('[project] and [tool.flit.metadata] cannot be '
+                             'present simultaneously')
     else:
         # tool.flit fallback
         topdata = data['tool']['flit']

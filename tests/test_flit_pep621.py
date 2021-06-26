@@ -303,3 +303,29 @@ test-tool = "testlib:main"
         },
         'py_modules': ['test_module'],
     }
+
+
+class FlitIrrelevantToolFlitSectionTest(unittest.TestCase, FlitTestCase):
+    """Test ignoring tool.flit with no relevant keys"""
+
+    toml_extra = '''
+[tool.flit.sdist]
+exclude = ["*"]
+'''
+
+    expected_extra = {
+        'py_modules': ['test_module'],
+    }
+
+
+class FlitDuplicateMetadataTest(unittest.TestCase, FlitTestCase):
+    """Test ignoring tool.flit with no relevant keys"""
+
+    toml_extra = '''
+[tool.flit.metadata]
+module = "test_module"
+author = "Some Guy"
+author-email = "guy@example.com"
+'''
+
+    expect_exception = ValueError
