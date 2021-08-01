@@ -156,6 +156,36 @@ class FlitExtraFilesTest(unittest.TestCase, FlitTestCase):
     ]
 
 
+class FlitNestedExtraFilesTest(unittest.TestCase, FlitTestCase):
+    """
+    Test handling a flit package with non-python files in subdirectory.
+    """
+
+    package_files = ['test_module/__init__.py',
+                     'test_module/dicts/en.dic',
+                     'test_module/dicts/sub/file',
+                     'test_module/submodule/__init__.py',
+                     'test_module/submodule/data',
+                     'test_module/submodule/sub/subdata',
+                     ]
+
+    expected_extra = {
+        'packages': ['test_module', 'test_module.submodule'],
+        'package_data': {'': ['*'],
+                         'test_module': ['dicts/*',
+                                         'dicts/sub/*',
+                                         'submodule/sub/*',
+                                         ],
+                         },
+    }
+    expected_extra_files = [
+        'test_module/dicts/en.dic',
+        'test_module/dicts/sub/file',
+        'test_module/submodule/data',
+        'test_module/submodule/sub/subdata',
+    ]
+
+
 class FlitNestedPackageTest(unittest.TestCase, FlitTestCase):
     """
     Test handling a flit package containing nested packages.

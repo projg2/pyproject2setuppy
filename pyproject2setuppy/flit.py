@@ -10,10 +10,35 @@ from setuptools import setup
 from collections import defaultdict
 
 import importlib
+import os.path
 import sys
 
 from pyproject2setuppy.common import auto_find_packages
 from pyproject2setuppy.pep621 import get_pep621_metadata
+
+
+def raise_exc(e):
+    raise e
+
+
+def find_package_data(packages):
+    """Find additional package data dirs and return package_data dict."""
+    ret = defaultdict(list)
+    # install all data files from package directories
+    ret[''] = ['*']
+
+    # find data subdirectories
+    for p in packages:
+        for topdir, dirs, files in os.walk(p.replace('.', '/'),
+                                           onerror=raise_exc):
+            dirs[:] = [x for x in dirs if x != '__pycache__'
+                       and not x.startswith('.')]
+            if '__init__.py' not in files:
+                # TOOD: do we need to use accurate package names?
+                pkg, data_path = topdir.split('/', 1)
+                ret[pkg].append(data_path + '/*')
+
+    return dict((x, sorted(frozenset(y))) for (x, y) in ret.items())
 
 
 def handle_flit(data):
@@ -72,9 +97,10 @@ def handle_flit(data):
                 ' '.join(mod.__doc__.strip().splitlines()))
 
     setup_metadata.update(auto_find_packages(modname))
+    setup_metadata['package_data'] = (
+        find_package_data(setup_metadata.get('packages', [])))
 
-    setup(package_data={'': ['*']},  # hack stolen from flit
-          **setup_metadata)
+    setup(**setup_metadata)
 
 
 def handle_flit_thyself(data):
