@@ -3,8 +3,12 @@
 # 2-clause BSD license
 
 import sys
-import toml
 import unittest
+
+try:
+    import tomli as toml
+except ImportError:
+    import toml
 
 from pyproject2setuppy.setuptools import handle_setuptools
 

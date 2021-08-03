@@ -7,8 +7,12 @@ import os
 import os.path
 import re
 import sys
-import toml
 import zipfile
+
+try:
+    import tomli as toml
+except ImportError:
+    import toml
 
 from distutils.sysconfig import get_python_lib
 from distutils.util import change_root

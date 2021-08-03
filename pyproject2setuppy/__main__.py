@@ -5,7 +5,10 @@
 
 from __future__ import absolute_import
 
-import toml
+try:
+    import tomli as toml
+except ImportError:
+    import toml
 
 import pyproject2setuppy.flit
 import pyproject2setuppy.poetry
