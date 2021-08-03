@@ -1,7 +1,5 @@
-/.coverage
 /.tox/
 /build/
-/coverage.xml
 /dist/
 *.egg-info
 __pycache__/
