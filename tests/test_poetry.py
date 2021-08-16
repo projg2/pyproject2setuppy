@@ -377,6 +377,96 @@ license = "MIT"
     }
 
 
+class PoetryDataTest(unittest.TestCase, PoetryTestCase):
+    """Test handling a poetry package with additional data files."""
+
+    package_files = [
+        'test_package/__init__.py',
+        'test_package/data/foo.txt',
+        'test_package/data/bar/baz',
+    ]
+
+    expected_extra = {
+        'package_data': {
+            '': ['*'],
+            'test_package': ['data/*', 'data/bar/*'],
+        },
+    }
+
+    expected_extra_files = [
+        'test_package/data/foo.txt',
+        'test_package/data/bar/baz',
+    ]
+
+
+class PoetrySubdirDataTest(PoetrySubdirTest):
+    """
+    Test handling a poetry package with implicit "src" subdir
+    and additional data files.
+    """
+
+    package_files = [
+        'src/subdir_package/__init__.py',
+        'src/subdir_package/sub/__init__.py',
+        'src/subdir_package/data/foo.txt',
+        'src/subdir_package/data/bar/baz',
+    ]
+
+    expected_extra = {
+        'name': 'subdir_package',
+        'package_dir': {
+            '': 'src',
+        },
+        'packages': [
+            'subdir_package',
+            'subdir_package.sub',
+        ],
+        'package_data': {
+            '': ['*'],
+            'subdir_package': ['data/*', 'data/bar/*'],
+        },
+    }
+
+    expected_extra_files = [
+       'subdir_package/data/foo.txt',
+       'subdir_package/data/bar/baz',
+    ]
+
+
+class PoetryPackagesSubdirDataTest(PoetryPackagesSubdirTest):
+    """
+    Test handling a poetry package with explicit "src" subdir
+    and additional data files.
+    """
+
+    package_files = [
+        'src/subdir_package/__init__.py',
+        'src/subdir_package/sub/__init__.py',
+        'src/subdir_package/data/foo.txt',
+        'src/subdir_package/data/bar/baz',
+    ]
+
+    expected_extra = {
+        'package_dir': {
+            'subdir_package': 'src/subdir_package',
+            'subdir_package.sub': 'src/subdir_package/sub',
+        },
+        'packages': [
+            'subdir_package',
+            'subdir_package.sub',
+        ],
+        'package_data': {
+            '': ['*'],
+            'subdir_package': ['data/*', 'data/bar/*'],
+        },
+    }
+
+    expected_extra_files = [
+       'subdir_package/data/foo.txt',
+       'subdir_package/data/bar/baz',
+    ]
+
+
 class PoetryCoreTest(unittest.TestCase, PoetryTestCase):
     """Test for using poetry-core backend"""
 

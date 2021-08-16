@@ -13,7 +13,7 @@ import email.utils
 import os.path
 import re
 
-from pyproject2setuppy.common import auto_find_packages
+from pyproject2setuppy.common import auto_find_packages, find_package_data
 
 
 def handle_poetry(data):
@@ -52,6 +52,14 @@ def handle_poetry(data):
                     package_args['package_dir'][sp] = os.path.join(
                         subdir, sp.replace('.', os.path.sep))
 
+    package_args['package_data'] = (
+        find_package_data(package_args.get('packages', []),
+                          package_args.get('package_dir', {})))
+
+    # NB: include doesn't seem to do anything without exclude
+    if 'exclude' in metadata:
+        raise NotImplementedError('exclude is not implemented yet')
+
     entry_points = defaultdict(list)
     if 'scripts' in metadata:
         for name, content in metadata['scripts'].items():
@@ -74,8 +82,6 @@ def handle_poetry(data):
           url=metadata.get('homepage'),
           classifiers=metadata.get('classifiers', []),
           entry_points=dict(entry_points),
-          # hack stolen from flit
-          package_data={'': ['*']},
           **package_args)
 
 

@@ -171,12 +171,11 @@ class FlitNestedExtraFilesTest(unittest.TestCase, FlitTestCase):
 
     expected_extra = {
         'packages': ['test_module', 'test_module.submodule'],
-        'package_data': {'': ['*'],
-                         'test_module': ['dicts/*',
-                                         'dicts/sub/*',
-                                         'submodule/sub/*',
-                                         ],
-                         },
+        'package_data': {
+            '': ['*'],
+            'test_module': ['dicts/*', 'dicts/sub/*', 'submodule/sub/*'],
+            'test_module.submodule': ['sub/*'],
+        },
     }
     expected_extra_files = [
         'test_module/dicts/en.dic',
