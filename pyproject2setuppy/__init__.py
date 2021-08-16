@@ -2,4 +2,4 @@
 Build pyproject.toml-based (flit, poetry) projects using setuptools
 """
 
-__version__ = '19'
+__version__ = '20'
