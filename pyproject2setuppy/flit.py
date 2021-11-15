@@ -10,6 +10,7 @@ from setuptools import setup
 from collections import defaultdict
 
 import importlib
+import os.path
 import sys
 
 from pyproject2setuppy.common import auto_find_packages, find_package_data
@@ -24,10 +25,15 @@ def handle_flit(data):
 
     # try PEP 621 first
     setup_metadata = get_pep621_metadata(data, ['version', 'description'])
+    modname = None
     if setup_metadata is not None:
         if 'metadata' in data.get('tool', {}).get('flit', {}):
             raise ValueError('[project] and [tool.flit.metadata] cannot be '
                              'present simultaneously')
+
+        # see if tool.flit.module specifies another module name
+        modname = (data.get('tool', {}).get('flit', {})
+                   .get('module', {}).get('name', None))
     else:
         # tool.flit fallback
         topdata = data['tool']['flit']
@@ -60,9 +66,14 @@ def handle_flit(data):
         }
 
     # handle dynamic metadata if necessary
-    modname = setup_metadata['name']
+    if modname is None:
+        modname = setup_metadata['name']
+    subdir, modname = os.path.split(modname)
+    if not subdir:
+        subdir = '.'
+
     if None in [setup_metadata[x] for x in ('version', 'description')]:
-        sys.path.insert(0, '.')
+        sys.path.insert(0, subdir)
         mod = importlib.import_module(modname, '')
         if setup_metadata['version'] is None:
             setup_metadata['version'] = mod.__version__
@@ -71,9 +82,10 @@ def handle_flit(data):
             setup_metadata['description'] = (
                 ' '.join(mod.__doc__.strip().splitlines()))
 
-    setup_metadata.update(auto_find_packages(modname))
+    setup_metadata.update(auto_find_packages(modname, subdir))
     setup_metadata['package_data'] = (
-        find_package_data(setup_metadata.get('packages', [])))
+        find_package_data(setup_metadata.get('packages', []),
+                          setup_metadata.get('package_dir', {})))
 
     setup(**setup_metadata)
 

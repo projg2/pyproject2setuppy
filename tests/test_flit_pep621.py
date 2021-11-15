@@ -305,6 +305,30 @@ test-tool = "testlib:main"
     }
 
 
+class FlitSubdirTest(unittest.TestCase, FlitTestCase):
+    """Test handling packages in a subdirectory (via module.name)."""
+
+    package_files = [
+        'src/subdir_package/__init__.py',
+        'src/subdir_package/sub/__init__.py',
+    ]
+
+    toml_extra = '''
+[tool.flit.module]
+name = "src/subdir_package"
+'''
+
+    expected_extra = {
+        'package_dir': {
+            '': 'src',
+        },
+        'packages': [
+            'subdir_package',
+            'subdir_package.sub',
+        ],
+    }
+
+
 class FlitIrrelevantToolFlitSectionTest(unittest.TestCase, FlitTestCase):
     """Test ignoring tool.flit with no relevant keys"""
 
