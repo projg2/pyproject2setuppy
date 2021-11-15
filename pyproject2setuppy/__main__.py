@@ -7,8 +7,10 @@ from __future__ import absolute_import
 
 try:
     import tomli as toml
+    OPEN_FLAGS = 'rb'
 except ImportError:
     import toml
+    OPEN_FLAGS = 'r'
 
 import pyproject2setuppy.flit
 import pyproject2setuppy.poetry
@@ -39,7 +41,7 @@ def main():
     working directory.
     """
 
-    with open('pyproject.toml') as f:
+    with open('pyproject.toml', OPEN_FLAGS) as f:
         data = toml.load(f)
     backend = data['build-system']['build-backend']
 
