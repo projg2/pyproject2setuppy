@@ -117,7 +117,7 @@ class BuildSystemTestCase(object):
     @property
     def expected_extra(self):
         """
-        Expected setup() arguments as dict, defined in the specifc test
+        Expected setup() arguments as dict, defined in the specific test
         case.
         """
         return {}
