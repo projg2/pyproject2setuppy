@@ -57,7 +57,7 @@ def handle_poetry(data):
                           package_args.get('package_dir', {})))
 
     # NB: include doesn't seem to do anything without exclude
-    if 'exclude' in metadata:
+    if metadata.get('exclude', []):
         raise NotImplementedError('exclude is not implemented yet')
 
     entry_points = defaultdict(list)
