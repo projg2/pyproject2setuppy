@@ -68,14 +68,12 @@ def handle_flit(data):
     # handle dynamic metadata if necessary
     if modname is None:
         modname = setup_metadata['name']
-    subdir, modname = os.path.split(modname)
-    if not subdir:
-        subdir = '.'
+    subdir = '.'
 
     if None in [setup_metadata[x] for x in ('version', 'description')]:
         sys.path.insert(0, subdir)
         sys.path.insert(1, os.path.join('src', subdir))
-        mod = importlib.import_module(modname, '')
+        mod = importlib.import_module(modname.replace('/', '.'), '')
         if setup_metadata['version'] is None:
             setup_metadata['version'] = mod.__version__
         if setup_metadata['description'] is None:
