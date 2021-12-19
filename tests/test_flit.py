@@ -205,6 +205,25 @@ class FlitNestedPackageTest(unittest.TestCase, FlitTestCase):
     }
 
 
+class FlitImplicitSubdirTest(unittest.TestCase, FlitTestCase):
+    """Test handling implicit src/."""
+
+    package_files = [
+        'src/test_module/__init__.py',
+        'src/test_module/sub/__init__.py',
+    ]
+
+    expected_extra = {
+        'package_dir': {
+            '': 'src/.',
+        },
+        'packages': [
+            'test_module',
+            'test_module.sub',
+        ],
+    }
+
+
 class FlitCoreTest(FlitTestCase):
     """Test for using flit_core backend"""
 

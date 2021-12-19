@@ -74,6 +74,7 @@ def handle_flit(data):
 
     if None in [setup_metadata[x] for x in ('version', 'description')]:
         sys.path.insert(0, subdir)
+        sys.path.insert(1, os.path.join('src', subdir))
         mod = importlib.import_module(modname, '')
         if setup_metadata['version'] is None:
             setup_metadata['version'] = mod.__version__
@@ -82,7 +83,11 @@ def handle_flit(data):
             setup_metadata['description'] = (
                 ' '.join(mod.__doc__.strip().splitlines()))
 
-    setup_metadata.update(auto_find_packages(modname, subdir))
+    try:
+        setup_metadata.update(auto_find_packages(modname, subdir))
+    except RuntimeError:
+        setup_metadata.update(
+            auto_find_packages(modname, os.path.join('src', subdir)))
     setup_metadata['package_data'] = (
         find_package_data(setup_metadata.get('packages', []),
                           setup_metadata.get('package_dir', {})))
