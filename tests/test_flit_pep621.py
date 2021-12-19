@@ -320,7 +320,7 @@ name = "subdir_package"
 
     expected_extra = {
         'package_dir': {
-            '': 'src/.',
+            '': 'src',
         },
         'packages': [
             'subdir_package',

@@ -215,7 +215,7 @@ class FlitImplicitSubdirTest(unittest.TestCase, FlitTestCase):
 
     expected_extra = {
         'package_dir': {
-            '': 'src/.',
+            '': 'src',
         },
         'packages': [
             'test_module',
