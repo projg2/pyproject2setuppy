@@ -18,6 +18,7 @@ def handle_setuptools(data):
     Prefer running the contents of setup.py, but fall back to running a setup()
     function.
     """
+    # TODO: shouldn't we be ignoring it with non-legacy backend?
     if os.path.exists('setup.py'):
         ret = (subprocess.Popen([sys.executable, 'setup.py'] + sys.argv[1:])
                .wait())
@@ -33,4 +34,5 @@ def get_handlers():
     Return build-backend mapping for setuptools.
     """
 
-    return {'setuptools.build_meta': handle_setuptools}
+    return {'setuptools.build_meta': handle_setuptools,
+            'setuptools.build_meta:__legacy__': handle_setuptools}

@@ -107,6 +107,21 @@ build-backend = "setuptools.build_meta"
             main()
             self.assertTrue(handler_mock.called)
 
+    @patch('pyproject2setuppy.setuptools.handle_setuptools')
+    def test_setuptools_legacy(self, handler_mock):
+        """
+        Test that the legacy setuptools handler is triggered correctly.
+        """
+
+        data = '''
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta:__legacy__"
+'''
+        with make_pyproject_toml(data):
+            main()
+            self.assertTrue(handler_mock.called)
+
     def test_garbage(self):
         """
         Test that unknown backend results in an exception.
