@@ -10,7 +10,6 @@ from setuptools import setup
 from collections import defaultdict
 
 import importlib
-import os.path
 import sys
 
 from pyproject2setuppy.common import auto_find_packages, find_package_data
