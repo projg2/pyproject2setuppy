@@ -2,6 +2,16 @@
 pyproject2setuppy -- a cheap build for pyproject.toml-based systems
 ===================================================================
 
+.. Warning::
+
+   pyproject2setuppy is no longer maintained.  Thanks to PEP 517, new
+   Python build systems are sprouting very fast, and every single one
+   of them seems to follow the XKCD#927 principle.  Copying all
+   the hacks and adding test cases for all the possible scenarios
+   is simply a humongous amount of work.  At this point, I have given up
+   and Gentoo is going to utilize PEP 517 entry points directly.
+
+
 pyproject2setuppy is a tool to install ``pyproject.toml``-based packages
 using plain setuptools_.  It maps the project metadata into ``setup()``
 call arguments, making it possible to build them without installing
